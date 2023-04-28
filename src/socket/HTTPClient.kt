@@ -36,6 +36,8 @@ object HTTPClient {
         try {
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             accessToken = response.body().split(":")[1].replace("\"", "").replace("}", "")
+            accessToken = accessToken.split(",")[0]
+            SocketHandler.token = accessToken
 
             println("Status-Code: " + response.statusCode())
             println("Body: " + response.body())

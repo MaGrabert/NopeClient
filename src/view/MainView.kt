@@ -1,6 +1,6 @@
 package view
 
-import socket.Socket
+import socket.SocketHandler
 import tornadofx.*
 
 /**
@@ -18,9 +18,9 @@ class MainView: View("Nope-Client-KI") {
             menu("User") {
                item("Disconnect") {
                    action {
+                       SocketHandler.disconnect()
                        replaceWith<SignInView>()
                        currentWindow?.sizeToScene()
-                       Socket.disconnect()
                    }
                }
             }

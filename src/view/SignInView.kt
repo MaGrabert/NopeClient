@@ -2,7 +2,7 @@ package view
 
 import javafx.scene.control.TextField
 import socket.HTTPClient
-import socket.Socket
+import socket.SocketHandler
 import tornadofx.*
 
 class SignInView: View("Sign-Up") {
@@ -27,8 +27,7 @@ class SignInView: View("Sign-Up") {
                 action {
                     if (userName.text.toString() != "" && password.text.toString() != "") {
                         httpClient.loginRequest(userName.text.toString(), password.text.toString())
-                        Socket.create()
-                        Socket.connect()
+                        SocketHandler.connect()
 
                         replaceWith<MainView>()
                         currentWindow?.sizeToScene()
