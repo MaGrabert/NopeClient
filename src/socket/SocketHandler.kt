@@ -34,10 +34,23 @@ object SocketHandler {
         }
 
         this.socket.connect()
+        getTournamentList()
     }
 
     fun disconnect() {
         this.socket.disconnect()
         println("Disconnected")
+    }
+
+    fun getTournamentList() {
+        this.socket.on("list:tournaments") { args ->
+            if(args[0] != null) {
+                for(item in args) {
+                    println(item)
+                }
+            } else {
+                println("No tournaments in list!")
+            }
+        }
     }
 }
