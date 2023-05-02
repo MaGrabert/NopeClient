@@ -2,21 +2,27 @@ package socket
 
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import org.json.JSONObject
 import java.net.URI
+import java.net.http.WebSocket
+import java.util.Collections.singletonMap
 
 /**
- * Creates a websocket
+ * Creates, connects and disconnects a websocket.
  *
  * @author Mathis Grabert
  * @since 07.04.2023
  */
 object SocketHandler {
     var token: String = ""
-    private val opts = IO.Options()
     private lateinit var socket: Socket
+
     fun connect() {
-        println("Token: $token")
-        this.opts.query = "token=$token"
+        val opts = IO.Options.builder()
+            .setAuth(singletonMap("token", "$token"))
+            .build()
+
         this.socket = IO.socket(URI.create("https://nope-server.azurewebsites.net/"), opts)
 
         this.socket.on(Socket.EVENT_CONNECT) {
