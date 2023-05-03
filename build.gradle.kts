@@ -8,7 +8,7 @@
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    id("org.jetbrains.kotlin.jvm") version "1.8.21"
 
     id("org.openjfx.javafxplugin") version "0.0.13"
 
@@ -25,9 +25,7 @@ dependencies {
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
 
-    implementation("no.tornado:tornadofx:1.7.17") {
-        exclude("org.jetbrains.kotlin")
-    }
+    implementation("no.tornado:tornadofx:1.7.20")
 
     implementation("io.socket:socket.io-client:2.0.0") {
         exclude("org.json', module: 'json")
@@ -51,3 +49,5 @@ configure<SourceSetContainer>
         java.srcDir("src")
     }
 }
+
+

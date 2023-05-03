@@ -1,5 +1,7 @@
 package view
 
+import game.Tournament
+import javafx.scene.control.SelectionMode
 import socket.SocketHandler
 import tornadofx.*
 
@@ -30,6 +32,27 @@ class MainView: View("Nope-Client-KI") {
                        replaceWith<ResultView>()
                    }
                }
+            }
+        }
+
+        var tableview = tableview(SocketHandler.tableData) {
+            column("ID", Tournament::id).prefWidth(204)
+            column("Created at", Tournament::date).prefWidth(204)
+            column("Size", Tournament::size).prefWidth(204)
+            column("Status", Tournament::status).prefWidth(204)
+            column("Player", Tournament::players).prefWidth(204.5)
+            selectionModel.selectionMode = SelectionMode.SINGLE
+        }
+
+        button("Join Tournament") {
+            action {
+                SocketHandler.joinTournament(tableview.selectionModel.selectedItem.id)
+            }
+        }
+
+        button("Create Tournament") {
+            action {
+
             }
         }
     }

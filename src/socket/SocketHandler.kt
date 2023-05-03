@@ -1,11 +1,11 @@
 package socket
 
+import game.Tournament
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import org.json.JSONObject
+import tornadofx.asObservable
 import java.net.URI
-import java.net.http.WebSocket
 import java.util.Collections.singletonMap
 
 /**
@@ -17,6 +17,7 @@ import java.util.Collections.singletonMap
 object SocketHandler {
     var token: String = ""
     private lateinit var socket: Socket
+    var tableData = mutableListOf<Tournament>().asObservable()
 
     fun connect() {
         val opts = IO.Options.builder()
@@ -45,11 +46,52 @@ object SocketHandler {
     fun getTournamentList() {
         this.socket.on("list:tournaments") { args ->
             if(args[0] != null) {
-                for(item in args) {
-                    println(item)
+                this.tableData.clear()
+                for (tournament in args) {
+                    val date = tournament.toString().split("createdAt\":\"")[1].split("T")[0]
+                    val time = tournament.toString().split("createdAt\":\"")[1].split("T")[1].split(".")[0]
+                    var players: String = ""
+                    for(player in tournament.toString().split("players\":[")[1].split("\"username\":\"").iterator()) {
+                        players += player.split("\"")[0] + " "
+                    }
+                    var tempTournament = Tournament()
+                    tempTournament.id = tournament.toString().split("id\":\"")[1].split("\",\"")[0]
+                    tempTournament.date = "$date $time"
+                    tempTournament.size = tournament.toString().split("currentSize\":")[1].replace("}]", "").toInt()
+                    tempTournament.status = tournament.toString().split("status\":\"")[1].split("\",\"")[0]
+                    tempTournament.players = players
+                    this.tableData.add(tempTournament)
                 }
             } else {
                 println("No tournaments in list!")
+            }
+        }
+    }
+
+    fun joinTournament(id: String) {
+        this.socket.emit("tournament:join", id)
+        this.socket.on("tournament:join") { args ->
+            println("Try to join Tournament")
+            if (args[0] != 0) {
+                for(element in args) {
+                    println(element)
+                }
+            } else {
+                println("No args")
+            }
+        }
+    }
+
+    fun leaveTournament() {
+        this.socket.emit("tournament:leave")
+        this.socket.on("tournament:leave") { args ->
+            println("Try to leave Tournament")
+            if (args[0] != 0) {
+                for(element in args) {
+                    println(element)
+                }
+            } else {
+                println("No args")
             }
         }
     }
