@@ -4,6 +4,8 @@ import game.Tournament
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import org.json.JSONArray
+import org.json.JSONObject
 import tornadofx.asObservable
 import java.net.URI
 import java.util.Collections.singletonMap
@@ -45,22 +47,24 @@ object SocketHandler {
 
     fun getTournamentList() {
         this.socket.on("list:tournaments") { args ->
+            tableData.clear()
             if(args[0] != null) {
-                this.tableData.clear()
-                for (tournament in args) {
-                    val date = tournament.toString().split("createdAt\":\"")[1].split("T")[0]
-                    val time = tournament.toString().split("createdAt\":\"")[1].split("T")[1].split(".")[0]
-                    var players: String = ""
-                    for(player in tournament.toString().split("players\":[")[1].split("\"username\":\"").iterator()) {
-                        players += player.split("\"")[0] + " "
-                    }
-                    var tempTournament = Tournament()
-                    tempTournament.id = tournament.toString().split("id\":\"")[1].split("\",\"")[0]
-                    tempTournament.date = "$date $time"
-                    tempTournament.size = tournament.toString().split("currentSize\":")[1].replace("}]", "").toInt()
-                    tempTournament.status = tournament.toString().split("status\":\"")[1].split("\",\"")[0]
-                    tempTournament.players = players
-                    this.tableData.add(tempTournament)
+                val jsonArray: JSONArray = args[0] as JSONArray
+                for(index in 0 until jsonArray.length()) {
+                    val jsonObject: JSONObject = jsonArray.getJSONObject(index)
+                    val id: String = jsonObject.getString("id")
+                    val date: String = jsonObject.getString("createdAt")
+                    val status: String = jsonObject.getString("status")
+                    val currentSize: String = jsonObject.getString("currentSize")
+                    val players: String = jsonObject.getString("players")
+
+                    val tmpTournament = Tournament()
+                    tmpTournament.id = id
+                    tmpTournament.date = date
+                    tmpTournament.size = currentSize.toInt()
+                    tmpTournament.status = status
+                    tmpTournament.players = players
+                    tableData.add(tmpTournament)
                 }
             } else {
                 println("No tournaments in list!")
