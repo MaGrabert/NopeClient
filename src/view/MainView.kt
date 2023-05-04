@@ -42,11 +42,11 @@ class MainView: View("Nope-Client-KI") {
 
         center {
             tableview = tableview(SocketHandler.tableData) {
-                column("ID", Tournament::id).prefWidth(204)
-                column("Created at", Tournament::date).prefWidth(204)
-                column("Size", Tournament::size).prefWidth(204)
-                column("Status", Tournament::status).prefWidth(204)
-                column("Player", Tournament::players).prefWidth(204.5)
+                column("ID", Tournament::id).prefWidth(1024.0 / 5)
+                column("Created at", Tournament::date).prefWidth(1024.0 / 5)
+                column("Size", Tournament::size).prefWidth(1024.0 / 5)
+                column("Status", Tournament::status).prefWidth(1024.0 / 5)
+                column("Player", Tournament::players).prefWidth(1024.0 / 5)
                 selectionModel.selectionMode = SelectionMode.SINGLE
             }
         }
@@ -62,7 +62,7 @@ class MainView: View("Nope-Client-KI") {
 
                 button("Create Tournament") {
                     action {
-
+                        find(PopOutView::class).openWindow()
                     }
                 }
             }

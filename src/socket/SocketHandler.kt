@@ -83,29 +83,19 @@ object SocketHandler {
 
     fun joinTournament(id: String) {
         this.socket.emit("tournament:join", id)
-        this.socket.on("tournament:join") { args ->
-            println("Try to join Tournament")
-            if (args[0] != 0) {
-                for(element in args) {
-                    println(element)
-                }
-            } else {
-                println("No args")
-            }
+        this.socket.on("tournament:join") {
+            println(it.joinToString())
         }
     }
 
     fun leaveTournament() {
         this.socket.emit("tournament:leave")
-        this.socket.on("tournament:leave") { args ->
-            println("Try to leave Tournament")
-            if (args[0] != 0) {
-                for(element in args) {
-                    println(element)
-                }
-            } else {
-                println("No args")
-            }
+        this.socket.on("tournament:leave") {
+            println(it.joinToString())
         }
+    }
+
+    fun createTurnament(numberOfMatches: String) {
+        this.socket.emit("tournament:create", numberOfMatches)
     }
 }
