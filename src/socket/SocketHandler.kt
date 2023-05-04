@@ -1,6 +1,7 @@
 package socket
 
 import game.Tournament
+import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -9,6 +10,7 @@ import org.json.JSONObject
 import tornadofx.asObservable
 import java.net.URI
 import java.util.Collections.singletonMap
+import kotlin.reflect.typeOf
 
 /**
  * Creates, connects and disconnects a websocket.
@@ -82,20 +84,26 @@ object SocketHandler {
     }
 
     fun joinTournament(id: String) {
-        this.socket.emit("tournament:join", id)
-        this.socket.on("tournament:join") {
-            println(it.joinToString())
-        }
+        this.socket.emit("tournament:join", id, Ack { response ->
+            val msg = response as Array
+            for(element in msg)
+                println(element)
+        })
     }
 
     fun leaveTournament() {
-        this.socket.emit("tournament:leave")
-        this.socket.on("tournament:leave") {
-            println(it.joinToString())
-        }
+        this.socket.emit("tournament:leave", Ack { response ->
+            val msg = response as Array
+            for(element in msg)
+                println(element)
+        })
     }
 
     fun createTurnament(numberOfMatches: String) {
-        this.socket.emit("tournament:create", numberOfMatches)
+        this.socket.emit("tournament:create", numberOfMatches.toInt(), Ack { response ->
+            val msg = response as Array
+            for(element in msg)
+                println(element)
+        })
     }
 }
