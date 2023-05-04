@@ -31,6 +31,25 @@ class TournamentView : View("Nope-Client-KI") {
             }
         }
 
+        left {
+            listview<String> {
+                items.add("Message:")
+                items.add(TournamentInfo.message)
+                items.add("")
+                items.add("Tournament ID:")
+                items.add(TournamentInfo.id)
+                items.add("")
+                items.add("Number-of-Matches:")
+                items.add(TournamentInfo.matches)
+                items.add("")
+                items.add("Current Size:")
+                items.add(TournamentInfo.size)
+                items.add("")
+                items.add("Player Names:")
+                items.add(TournamentInfo.players)
+            }
+        }
+
         bottom {
             hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Leave Tournament") {

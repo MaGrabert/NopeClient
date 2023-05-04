@@ -1,5 +1,6 @@
 package view
 
+import game.TournamentInfo
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.TextField
@@ -34,6 +35,7 @@ class SignInView: View("Sign-Up") {
                         if (userName.text.toString() != "" && password.text.toString() != "") {
                             httpClient.loginRequest(userName.text.toString(), password.text.toString())
                             SocketHandler.connect()
+                            TournamentInfo.players = userName.text.toString()
 
                             replaceWith<MainView>()
                             currentWindow?.sizeToScene()

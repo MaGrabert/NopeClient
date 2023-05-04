@@ -14,6 +14,7 @@ import tornadofx.*
  * @since 07.04.2023
  */
 class MainView: View("Nope-Client-KI") {
+
     override val root = borderpane() {
         prefWidth = 1024.0
         prefHeight = 800.0

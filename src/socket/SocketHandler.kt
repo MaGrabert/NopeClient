@@ -7,6 +7,7 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import tornadofx.asObservable
 import java.net.URI
@@ -55,29 +56,33 @@ object SocketHandler {
             if(args[0] != null) {
                 val jsonArray: JSONArray = args[0] as JSONArray
                 for(index in 0 until jsonArray.length()) {
-                    val jsonObject: JSONObject = jsonArray.getJSONObject(index)
-                    val id: String = jsonObject.getString("id")
-                    val date: String = jsonObject.getString("createdAt")
-                    val status: String = jsonObject.getString("status")
-                    val currentSize: String = jsonObject.getString("currentSize")
-                    val players: JSONArray = jsonObject.getJSONArray("players")
-                    var playersString: String = ""
+                    try {
+                        val jsonObject: JSONObject = jsonArray.getJSONObject(index)
+                        val id: String = jsonObject.getString("id")
+                        val date: String = jsonObject.getString("createdAt")
+                        val status: String = jsonObject.getString("status")
+                        val currentSize: String = jsonObject.getString("currentSize")
+                        val players: JSONArray = jsonObject.getJSONArray("players")
+                        var playersString: String = ""
 
-                    for(idx in 0 until players.length()) {
-                        playersString += players.getJSONObject(idx).getString("username")
-                        if(idx < players.length() - 1) {
-                            playersString += ", "
+                        for(idx in 0 until players.length()) {
+                            playersString += players.getJSONObject(idx).getString("username")
+                            if(idx < players.length() - 1) {
+                                playersString += ", "
+                            }
                         }
+
+                        val tmpTournament = Tournament()
+
+                        tmpTournament.id = id
+                        tmpTournament.date = date.split("T")[0] + " " + date.split("T")[1].split(".")[0]
+                        tmpTournament.size = currentSize.toInt()
+                        tmpTournament.status = status
+                        tmpTournament.players = playersString
+                        tableData.add(tmpTournament)
+                    } catch (e :JSONException) {
+                        print("No data in getTournamentList!")
                     }
-
-                    val tmpTournament = Tournament()
-
-                    tmpTournament.id = id
-                    tmpTournament.date = date.split("T")[0] + " " + date.split("T")[1].split(".")[0]
-                    tmpTournament.size = currentSize.toInt()
-                    tmpTournament.status = status
-                    tmpTournament.players = playersString
-                    tableData.add(tmpTournament)
                 }
             } else {
                 println("No tournaments in list!")
@@ -88,8 +93,26 @@ object SocketHandler {
     fun joinTournament(id: String) {
         this.socket.emit("tournament:join", id, Ack { response ->
             val msg = response as Array
-            for(element in msg)
-                println(element)
+            val jsonObject : JSONObject = msg[0] as JSONObject
+            try {
+                val players: JSONArray = jsonObject.getJSONArray("players")
+                var playersString: String = ""
+
+                for(idx in 0 until players.length()) {
+                    playersString += players.getJSONObject(idx).getString("username")
+                    if(idx < players.length() - 1) {
+                        playersString += ", "
+                    }
+                }
+
+                TournamentInfo.id = jsonObject.getJSONObject("data").getString("tournamentId")
+                TournamentInfo.size = jsonObject.getJSONObject("data").getString("currentSize")
+                TournamentInfo.matches = jsonObject.getJSONObject("data").getString("bestOf")
+                TournamentInfo.players = playersString
+
+            } catch (e :JSONException) {
+                println("Join Tournament has no data!")
+            }
         })
     }
 
@@ -104,33 +127,43 @@ object SocketHandler {
     fun createTournament(numberOfMatches: String) {
         this.socket.emit("tournament:create", numberOfMatches.toInt(), Ack { response ->
             val msg = response as Array
-            for(element in msg)
-                println(element)
+            val jsonObject : JSONObject = msg[0] as JSONObject
+            try {
+                TournamentInfo.id = jsonObject.getJSONObject("data").getString("tournamentId")
+                TournamentInfo.size = jsonObject.getJSONObject("data").getString("currentSize")
+                TournamentInfo.matches = jsonObject.getJSONObject("data").getString("bestOf")
+            } catch (e :JSONException) {
+                println("Create Tournament has no data!")
+            }
         })
     }
 
     fun getTournamentInfo() {
         this.socket.on("tournament:playerInfo") { args ->
             if(args[0] != null) {
-                val jsonObject: JSONObject = args[0] as JSONObject
-                val message: String = jsonObject.getString("message")
-                val id: String = jsonObject.getString("tournamentId")
-                val size: String = jsonObject.getString("currentSize")
-                val matches: String = jsonObject.getString("bestOf")
-                val players: JSONArray = jsonObject.getJSONArray("players")
-                var playersString: String = ""
+                try {
+                    val jsonObject: JSONObject = args[0] as JSONObject
+                    val message: String = jsonObject.getString("message")
+                    val id: String = jsonObject.getString("tournamentId")
+                    val size: String = jsonObject.getString("currentSize")
+                    val matches: String = jsonObject.getString("bestOf")
+                    val players: JSONArray = jsonObject.getJSONArray("players")
+                    var playersString: String = ""
 
-                for (idx in 0 until players.length()) {
-                    playersString += players.getJSONObject(idx).getString("username")
-                    if (idx < players.length() - 1) {
-                        playersString += ", "
+                    for (idx in 0 until players.length()) {
+                        playersString += players.getJSONObject(idx).getString("username")
+                        if (idx < players.length() - 1) {
+                            playersString += ", "
+                        }
                     }
+                    TournamentInfo.matches = matches
+                    TournamentInfo.id = id
+                    TournamentInfo.size = size
+                    TournamentInfo.players = playersString
+                    TournamentInfo.message = message
+                } catch (e :JSONException) {
+                    println("No data in getTournamentInfo!")
                 }
-                TournamentInfo.matches = matches
-                TournamentInfo.id = id
-                TournamentInfo.size = size
-                TournamentInfo.players = playersString
-                TournamentInfo.message = message
             }
         }
     }
