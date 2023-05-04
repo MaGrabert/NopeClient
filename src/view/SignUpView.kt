@@ -1,5 +1,7 @@
 package view
 
+import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.control.TextField
 import socket.HTTPClient
 import tornadofx.*
@@ -16,44 +18,55 @@ class SignUpView: View("Sign-Up") {
     private var firstName: TextField by singleAssign()
     private var lastName: TextField by singleAssign()
     private var httpClient = HTTPClient
+    private lateinit var errorLabel: Label
 
     override val root = vbox {
         prefWidth = 300.0
         prefHeight = 300.0
 
         form {
-            label("User-Name")
-            userName = textfield()
+            fieldset("Register") {
+                field("User-Name") {
+                    userName = textfield()
+                }
 
-            label("Password")
-            password = passwordfield()
+                field("Password") {
+                    password = passwordfield()
+                }
 
-            label("First-Name")
-            firstName = textfield()
+                field("First-Name") {
+                    firstName = textfield()
+                }
 
-            label("Last-Name")
-            lastName = textfield()
+                field("Last-Name") {
+                    lastName = textfield()
+                }
+                errorLabel = label()
+            }
+            hbox(spacing = 10,alignment = Pos.CENTER) {
+                button("Register") {
+                    action {
+                        if (userName.text.toString() != "" && password.text.toString() != "" && firstName.text.toString() != "" && lastName.text.toString() != "") {
+                            httpClient.registerRequest(
+                                userName.text.toString(),
+                                password.text.toString(),
+                                firstName.text.toString(),
+                                lastName.text.toString()
+                            )
 
-            val errorLabel = label()
-
-            button("Register") {
-                 action {
-
-                    if(userName.text.toString() != "" && password.text.toString() != "" && firstName.text.toString() != "" && lastName.text.toString() != "") {
-                        httpClient.registerRequest(userName.text.toString(), password.text.toString(), firstName.text.toString(), lastName.text.toString())
-
-                        replaceWith<SignInView>()
-                        currentWindow?.sizeToScene()
-                    } else {
-                        errorLabel.text = "A Field in the mask was empty!"
+                            replaceWith<SignInView>()
+                            currentWindow?.sizeToScene()
+                        } else {
+                            errorLabel.text = "A Field in the mask was empty!"
+                        }
                     }
                 }
-            }
 
-            button("Sign In") {
-                action {
-                    replaceWith<SignInView>()
-                    currentWindow?.sizeToScene()
+                button("Sign In") {
+                    action {
+                        replaceWith<SignInView>()
+                        currentWindow?.sizeToScene()
+                    }
                 }
             }
         }

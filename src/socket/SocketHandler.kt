@@ -56,14 +56,23 @@ object SocketHandler {
                     val date: String = jsonObject.getString("createdAt")
                     val status: String = jsonObject.getString("status")
                     val currentSize: String = jsonObject.getString("currentSize")
-                    val players: String = jsonObject.getString("players")
+                    val players: JSONArray = jsonObject.getJSONArray("players")
+                    var playersString: String = ""
+
+                    for(idx in 0 until players.length()) {
+                        playersString += players.getJSONObject(idx).getString("username")
+                        if(idx < players.length() - 1) {
+                            playersString += ", "
+                        }
+                    }
 
                     val tmpTournament = Tournament()
+
                     tmpTournament.id = id
-                    tmpTournament.date = date
+                    tmpTournament.date = date.split("T")[0] + " " + date.split("T")[1].split(".")[0]
                     tmpTournament.size = currentSize.toInt()
                     tmpTournament.status = status
-                    tmpTournament.players = players
+                    tmpTournament.players = playersString
                     tableData.add(tmpTournament)
                 }
             } else {

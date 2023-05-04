@@ -50,4 +50,8 @@ configure<SourceSetContainer>
     }
 }
 
+tasks.withType<JavaExec>{
+    jvmArgs = listOf("--add-opens", "javafx.graphics/javafx.scene=ALL-UNNAMED")
+}
+
 
