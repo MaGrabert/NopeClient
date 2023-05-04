@@ -1,5 +1,6 @@
 package view
 
+import game.TournamentInfo
 import javafx.geometry.Pos
 import socket.SocketHandler
 import tornadofx.*
@@ -29,10 +30,12 @@ class TournamentView : View("Nope-Client-KI") {
                 }
             }
         }
+
         bottom {
             hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Leave Tournament") {
                     action {
+                        SocketHandler.beInTournament = false
                         SocketHandler.leaveTournament()
                         replaceWith<MainView>()
                         currentWindow?.sizeToScene()

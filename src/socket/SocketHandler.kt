@@ -1,6 +1,7 @@
 package socket
 
 import game.Tournament
+import game.TournamentInfo
 import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -22,6 +23,7 @@ object SocketHandler {
     var token: String = ""
     private lateinit var socket: Socket
     var tableData = mutableListOf<Tournament>().asObservable()
+    var beInTournament: Boolean = false
 
     fun connect() {
         val opts = IO.Options.builder()
@@ -99,11 +101,37 @@ object SocketHandler {
         })
     }
 
-    fun createTurnament(numberOfMatches: String) {
+    fun createTournament(numberOfMatches: String) {
         this.socket.emit("tournament:create", numberOfMatches.toInt(), Ack { response ->
             val msg = response as Array
             for(element in msg)
                 println(element)
         })
+    }
+
+    fun getTournamentInfo() {
+        this.socket.on("tournament:playerInfo") { args ->
+            if(args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                val message: String = jsonObject.getString("message")
+                val id: String = jsonObject.getString("tournamentId")
+                val size: String = jsonObject.getString("currentSize")
+                val matches: String = jsonObject.getString("bestOf")
+                val players: JSONArray = jsonObject.getJSONArray("players")
+                var playersString: String = ""
+
+                for (idx in 0 until players.length()) {
+                    playersString += players.getJSONObject(idx).getString("username")
+                    if (idx < players.length() - 1) {
+                        playersString += ", "
+                    }
+                }
+                TournamentInfo.matches = matches
+                TournamentInfo.id = id
+                TournamentInfo.size = size
+                TournamentInfo.players = playersString
+                TournamentInfo.message = message
+            }
+        }
     }
 }

@@ -25,11 +25,20 @@ class ResultView: View("Nope-Client-KI") {
                 }
             }
             menu("Game") {
-                item("Current Move"){
-                    action {
-                        replaceWith<MainView>()
+                if(!SocketHandler.beInTournament) {
+                    item("Current Move"){
+                        action {
+                            replaceWith<MainView>()
+                        }
+                    }
+                } else {
+                    item("Tournament"){
+                        action {
+                            replaceWith<TournamentView>()
+                        }
                     }
                 }
+
             }
         }
     }

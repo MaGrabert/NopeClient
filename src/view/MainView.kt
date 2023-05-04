@@ -55,7 +55,9 @@ class MainView: View("Nope-Client-KI") {
             hbox(spacing = 10,alignment = Pos.CENTER) {
                 button("Join Tournament") {
                     action {
+                        SocketHandler.beInTournament = true
                         SocketHandler.joinTournament(tableview.selectionModel.selectedItem.id)
+                        SocketHandler.getTournamentInfo()
                         replaceWith<TournamentView>()
                     }
                 }
