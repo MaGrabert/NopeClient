@@ -47,7 +47,7 @@ class MainView: View("Nope-Client-KI") {
                 column("Created at", Tournament::date).prefWidth(1024.0 / 5)
                 column("Size", Tournament::size).prefWidth(1024.0 / 5)
                 column("Status", Tournament::status).prefWidth(1024.0 / 5)
-                column("Player", Tournament::players).prefWidth(1024.0 / 5)
+                column("Players", Tournament::players).prefWidth(1024.0 / 5)
                 selectionModel.selectionMode = SelectionMode.SINGLE
             }
         }

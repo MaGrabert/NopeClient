@@ -45,7 +45,7 @@ class TournamentView : View("Nope-Client-KI") {
                 items.add("Current Size:")
                 items.add(TournamentInfo.size)
                 items.add("")
-                items.add("Player Names:")
+                items.add("Players Names:")
                 items.add(TournamentInfo.players)
             }
         }
