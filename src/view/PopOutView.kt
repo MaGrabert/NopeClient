@@ -24,7 +24,7 @@ class PopOutView: View("Pop out") {
                 button("Create") {
                     action {
                         var numberOFMatches: String = toggleGroup.selectedToggle.toString().split("'")[1].replace("'", "")
-                        SocketHandler.createTournament(numberOFMatches)
+                        SocketHandler.emit("tournament:create", numberOFMatches.toInt())
                         close()
                     }
                 }

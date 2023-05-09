@@ -19,8 +19,11 @@ object HTTPClient {
         try {
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
-            println("Status-Code: " + response.statusCode())
-            println("Body: " + response.body())
+            if(response.statusCode() in 200..299)
+                println("Register successful!")
+            else
+                println("Error during registration!")
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -39,8 +42,11 @@ object HTTPClient {
             accessToken = accessToken.split(",")[0]
             SocketHandler.token = accessToken
 
-            println("Status-Code: " + response.statusCode())
-            println("Body: " + response.body())
+            if(response.statusCode() in 200..299)
+                println("Login successful!")
+            else
+                println("Error during login!")
+
         } catch (e: Exception) {
             e.printStackTrace()
         }

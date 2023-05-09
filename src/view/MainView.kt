@@ -57,7 +57,7 @@ class MainView: View("Nope-Client-KI") {
                 button("Join Tournament") {
                     action {
                         SocketHandler.beInTournament = true
-                        SocketHandler.joinTournament(tableview.selectionModel.selectedItem.id)
+                        SocketHandler.emit("tournament:join", tableview.selectionModel.selectedItem.id)
                         SocketHandler.getTournamentInfo()
                         replaceWith<TournamentView>()
                     }

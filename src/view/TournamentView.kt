@@ -55,7 +55,7 @@ class TournamentView : View("Nope-Client-KI") {
                 button("Leave Tournament") {
                     action {
                         SocketHandler.beInTournament = false
-                        SocketHandler.leaveTournament()
+                        SocketHandler.emit("tournament:leave", null)
                         replaceWith<MainView>()
                         currentWindow?.sizeToScene()
                     }

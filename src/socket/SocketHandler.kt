@@ -34,7 +34,7 @@ object SocketHandler {
         this.socket = IO.socket(URI.create("https://nope-server.azurewebsites.net/"), opts)
 
         this.socket.on(Socket.EVENT_CONNECT) {
-            println("Connected")
+            println("Socket is Connected")
         }
 
         this.socket.on(Socket.EVENT_CONNECT_ERROR) {
@@ -47,7 +47,7 @@ object SocketHandler {
 
     fun disconnect() {
         this.socket.disconnect()
-        println("Disconnected")
+        println("Socket is disconnected")
     }
 
     fun getTournamentList() {
@@ -90,52 +90,15 @@ object SocketHandler {
         }
     }
 
-    fun joinTournament(id: String) {
-        this.socket.emit("tournament:join", id, Ack { response ->
-            val msg = response as Array
-            val jsonObject : JSONObject = msg[0] as JSONObject
-            try {
-                val players: JSONArray = jsonObject.getJSONArray("players")
-                var playersString: String = ""
+    fun emit(event: String, data: Any?): JSONObject {
+        var response = JSONObject()
 
-                for(idx in 0 until players.length()) {
-                    playersString += players.getJSONObject(idx).getString("username")
-                    if(idx < players.length() - 1) {
-                        playersString += ", "
-                    }
-                }
-
-                TournamentInfo.id = jsonObject.getJSONObject("data").getString("tournamentId")
-                TournamentInfo.size = jsonObject.getJSONObject("data").getString("currentSize")
-                TournamentInfo.matches = jsonObject.getJSONObject("data").getString("bestOf")
-                TournamentInfo.players = playersString
-
-            } catch (e :JSONException) {
-                println("Join Tournament has no data!")
-            }
+        this.socket.emit(event, data, Ack { acknowledgement ->
+            response = acknowledgement[0] as JSONObject
+            println("Server response on event $event: $response")
         })
-    }
 
-    fun leaveTournament() {
-        this.socket.emit("tournament:leave", Ack { response ->
-            val msg = response as Array
-            for(element in msg)
-                println(element)
-        })
-    }
-
-    fun createTournament(numberOfMatches: String) {
-        this.socket.emit("tournament:create", numberOfMatches.toInt(), Ack { response ->
-            val msg = response as Array
-            val jsonObject : JSONObject = msg[0] as JSONObject
-            try {
-                TournamentInfo.id = jsonObject.getJSONObject("data").getString("tournamentId")
-                TournamentInfo.size = jsonObject.getJSONObject("data").getString("currentSize")
-                TournamentInfo.matches = jsonObject.getJSONObject("data").getString("bestOf")
-            } catch (e :JSONException) {
-                println("Create Tournament has no data!")
-            }
-        })
+        return response
     }
 
     fun getTournamentInfo() {
