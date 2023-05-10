@@ -9,7 +9,7 @@ import tornadofx.*
  * @author Mathis Grabert
  * @since 07.04.2023
  */
-class ResultView: View("Nope-Client-KI") {
+class Profile: View("Nope-Client-KI") {
     override val root = vbox {
         prefWidth = 1024.0
         prefHeight = 800.0

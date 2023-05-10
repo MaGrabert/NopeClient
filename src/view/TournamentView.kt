@@ -24,7 +24,7 @@ class TournamentView : View("Nope-Client-KI") {
                 menu("Game") {
                     item("Results"){
                         action {
-                            replaceWith<ResultView>()
+                            replaceWith<Profile>()
                         }
                     }
                 }
@@ -55,7 +55,7 @@ class TournamentView : View("Nope-Client-KI") {
                 button("Leave Tournament") {
                     action {
                         SocketHandler.beInTournament = false
-                        SocketHandler.emit("tournament:leave", null)
+                        SocketHandler.emit("tournament:leave")
                         replaceWith<MainView>()
                         currentWindow?.sizeToScene()
                     }

@@ -34,7 +34,7 @@ class MainView: View("Nope-Client-KI") {
                 menu("Game") {
                     item("Results"){
                         action {
-                            replaceWith<ResultView>()
+                            replaceWith<Profile>()
                         }
                     }
                 }

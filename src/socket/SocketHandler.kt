@@ -28,7 +28,7 @@ object SocketHandler {
 
     fun connect() {
         val opts = IO.Options.builder()
-            .setAuth(singletonMap("token", "$token"))
+            .setAuth(singletonMap("token", token))
             .build()
 
         this.socket = IO.socket(URI.create("https://nope-server.azurewebsites.net/"), opts)
@@ -42,7 +42,7 @@ object SocketHandler {
         }
 
         this.socket.connect()
-        getTournamentList()
+        refreshingTableData()
     }
 
     fun disconnect() {
@@ -50,7 +50,7 @@ object SocketHandler {
         println("Socket is disconnected")
     }
 
-    fun getTournamentList() {
+    private fun refreshingTableData() {
         this.socket.on("list:tournaments") { args ->
             tableData.clear()
             if(args[0] != null) {
@@ -58,27 +58,7 @@ object SocketHandler {
                 for(index in 0 until jsonArray.length()) {
                     try {
                         val jsonObject: JSONObject = jsonArray.getJSONObject(index)
-                        val id: String = jsonObject.getString("id")
-                        val date: String = jsonObject.getString("createdAt")
-                        val status: String = jsonObject.getString("status")
-                        val currentSize: String = jsonObject.getString("currentSize")
-                        val players: JSONArray = jsonObject.getJSONArray("players")
-                        var playersString: String = ""
-
-                        for(idx in 0 until players.length()) {
-                            playersString += players.getJSONObject(idx).getString("username")
-                            if(idx < players.length() - 1) {
-                                playersString += ", "
-                            }
-                        }
-
-                        val tmpTournament = Tournament()
-
-                        tmpTournament.id = id
-                        tmpTournament.date = date.split("T")[0] + " " + date.split("T")[1].split(".")[0]
-                        tmpTournament.size = currentSize.toInt()
-                        tmpTournament.status = status
-                        tmpTournament.players = playersString
+                        val tmpTournament = Tournament(jsonObject)
                         tableData.add(tmpTournament)
                     } catch (e :JSONException) {
                         print("No data in getTournamentList!")
@@ -90,13 +70,50 @@ object SocketHandler {
         }
     }
 
-    fun emit(event: String, data: Any?): JSONObject {
+    fun emit(event: String, data: String): JSONObject {
         var response = JSONObject()
 
         this.socket.emit(event, data, Ack { acknowledgement ->
             response = acknowledgement[0] as JSONObject
             println("Server response on event $event: $response")
         })
+
+        return response
+    }
+
+    fun emit(event: String, data: Int): JSONObject {
+        var response = JSONObject()
+
+        this.socket.emit(event, data, Ack { acknowledgement ->
+            response = acknowledgement[0] as JSONObject
+            println("Server response on event $event: $response")
+        })
+
+        return response
+    }
+
+    fun emit(event: String): JSONObject {
+        var response = JSONObject()
+
+        this.socket.emit(event, Ack { acknowledgement ->
+            response = acknowledgement[0] as JSONObject
+            println("Server response on event $event: $response")
+        })
+
+        return response
+    }
+
+    fun on(event: String): JSONObject {
+        var response = JSONObject()
+
+        this.socket.on(event) { args ->
+            if(args[0] != null) {
+                println("Server response on event $event")
+                response = args[0] as JSONObject
+            } else {
+                println("No data received for event $event!")
+            }
+        }
 
         return response
     }
@@ -125,7 +142,7 @@ object SocketHandler {
                     TournamentInfo.players = playersString
                     TournamentInfo.message = message
                 } catch (e :JSONException) {
-                    println("No data in getTournamentInfo!")
+
                 }
             }
         }
