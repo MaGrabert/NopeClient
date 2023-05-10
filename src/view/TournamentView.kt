@@ -1,5 +1,6 @@
 package view
 
+import app.Profile
 import game.TournamentInfo
 import javafx.geometry.Pos
 import socket.SocketHandler
@@ -22,9 +23,9 @@ class TournamentView : View("Nope-Client-KI") {
                     }
                 }
                 menu("Game") {
-                    item("Results"){
+                    item("Profile"){
                         action {
-                            replaceWith<Profile>()
+                            replaceWith<ProfileView>()
                         }
                     }
                 }
@@ -36,11 +37,11 @@ class TournamentView : View("Nope-Client-KI") {
                 items.add("Message:")
                 items.add(TournamentInfo.message)
                 items.add("")
+                items.add("Status:")
+                items.add(TournamentInfo.status)
+                items.add("")
                 items.add("Tournament ID:")
                 items.add(TournamentInfo.id)
-                items.add("")
-                items.add("Number-of-Matches:")
-                items.add(TournamentInfo.matches)
                 items.add("")
                 items.add("Current Size:")
                 items.add(TournamentInfo.size)
@@ -54,10 +55,19 @@ class TournamentView : View("Nope-Client-KI") {
             hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Leave Tournament") {
                     action {
-                        SocketHandler.beInTournament = false
+                        Profile.isInTournament = false
+                        Profile.isHost = false
                         SocketHandler.emit("tournament:leave")
                         replaceWith<MainView>()
                         currentWindow?.sizeToScene()
+                    }
+                }
+
+                if(Profile.isHost) {
+                    button("Start Tournament") {
+                        action {
+                            SocketHandler.emit("tournament:start")
+                        }
                     }
                 }
             }

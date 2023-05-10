@@ -1,18 +1,17 @@
 package socket
 
+import app.Profile
 import game.Tournament
 import game.TournamentInfo
 import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
-import io.socket.emitter.Emitter
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import tornadofx.asObservable
 import java.net.URI
 import java.util.Collections.singletonMap
-import kotlin.reflect.typeOf
 
 /**
  * Creates, connects and disconnects a websocket.
@@ -21,14 +20,12 @@ import kotlin.reflect.typeOf
  * @since 07.04.2023
  */
 object SocketHandler {
-    var token: String = ""
     private lateinit var socket: Socket
     var tableData = mutableListOf<Tournament>().asObservable()
-    var beInTournament: Boolean = false
 
     fun connect() {
         val opts = IO.Options.builder()
-            .setAuth(singletonMap("token", token))
+            .setAuth(singletonMap("token", Profile.token))
             .build()
 
         this.socket = IO.socket(URI.create("https://nope-server.azurewebsites.net/"), opts)
@@ -103,47 +100,20 @@ object SocketHandler {
         return response
     }
 
-    fun on(event: String): JSONObject {
-        var response = JSONObject()
-
-        this.socket.on(event) { args ->
+    fun refreshingTournamentInfo() {
+        this.socket.on("tournament:info") { args ->
             if(args[0] != null) {
-                println("Server response on event $event")
-                response = args[0] as JSONObject
-            } else {
-                println("No data received for event $event!")
+                val jsonObject: JSONObject = args[0] as JSONObject
+                TournamentInfo.createInfo(jsonObject)
             }
         }
-
-        return response
     }
 
-    fun getTournamentInfo() {
+    fun refreshingPlayerInfo() {
         this.socket.on("tournament:playerInfo") { args ->
             if(args[0] != null) {
-                try {
-                    val jsonObject: JSONObject = args[0] as JSONObject
-                    val message: String = jsonObject.getString("message")
-                    val id: String = jsonObject.getString("tournamentId")
-                    val size: String = jsonObject.getString("currentSize")
-                    val matches: String = jsonObject.getString("bestOf")
-                    val players: JSONArray = jsonObject.getJSONArray("players")
-                    var playersString: String = ""
-
-                    for (idx in 0 until players.length()) {
-                        playersString += players.getJSONObject(idx).getString("username")
-                        if (idx < players.length() - 1) {
-                            playersString += ", "
-                        }
-                    }
-                    TournamentInfo.matches = matches
-                    TournamentInfo.id = id
-                    TournamentInfo.size = size
-                    TournamentInfo.players = playersString
-                    TournamentInfo.message = message
-                } catch (e :JSONException) {
-
-                }
+                val jsonObject: JSONObject = args[0] as JSONObject
+                TournamentInfo.createPlayerInfo(jsonObject)
             }
         }
     }

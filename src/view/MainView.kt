@@ -1,6 +1,8 @@
 package view
 
+import app.Profile
 import game.Tournament
+import game.TournamentInfo
 import javafx.geometry.Pos
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.TableView
@@ -32,9 +34,9 @@ class MainView: View("Nope-Client-KI") {
                     }
                 }
                 menu("Game") {
-                    item("Results"){
+                    item("Profile"){
                         action {
-                            replaceWith<Profile>()
+                            replaceWith<ProfileView>()
                         }
                     }
                 }
@@ -56,10 +58,18 @@ class MainView: View("Nope-Client-KI") {
             hbox(spacing = 10,alignment = Pos.CENTER) {
                 button("Join Tournament") {
                     action {
-                        SocketHandler.beInTournament = true
-                        SocketHandler.emit("tournament:join", tableview.selectionModel.selectedItem.id)
-                        SocketHandler.getTournamentInfo()
-                        replaceWith<TournamentView>()
+                        val selectedItem = tableview.selectionModel.selectedItem
+                        if(selectedItem != null) {
+                            Profile.isInTournament = true
+                            SocketHandler.emit("tournament:join", selectedItem.id)
+                            val size = (selectedItem.size.toInt() + 1).toString()
+                            TournamentInfo.createJoinInfo(selectedItem.id, selectedItem.status, size, selectedItem.players + ", ${Profile.userName}")
+                            SocketHandler.refreshingTournamentInfo()
+                            SocketHandler.refreshingPlayerInfo()
+                            replaceWith<TournamentView>()
+                        } else {
+                            println("Nothing was selected")
+                        }
                     }
                 }
 

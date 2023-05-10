@@ -1,5 +1,7 @@
 package view
 
+import app.Profile
+import game.TournamentInfo
 import javafx.geometry.Pos
 import javafx.scene.control.ToggleGroup
 import socket.SocketHandler
@@ -25,6 +27,8 @@ class PopOutView: View("Pop out") {
                     action {
                         var numberOFMatches: String = toggleGroup.selectedToggle.toString().split("'")[1].replace("'", "")
                         SocketHandler.emit("tournament:create", numberOFMatches.toInt())
+                        Profile.isHost = true
+                        find<MainView>().replaceWith<TournamentView>()
                         close()
                     }
                 }

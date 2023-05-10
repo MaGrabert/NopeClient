@@ -1,5 +1,6 @@
 package socket
 
+import app.Profile
 import java.lang.Exception
 import java.net.URI
 import java.net.http.HttpClient
@@ -40,7 +41,7 @@ object HTTPClient {
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             accessToken = response.body().split(":")[1].replace("\"", "").replace("}", "")
             accessToken = accessToken.split(",")[0]
-            SocketHandler.token = accessToken
+            Profile.token = accessToken
 
             if(response.statusCode() in 200..299)
                 println("Login successful!")
