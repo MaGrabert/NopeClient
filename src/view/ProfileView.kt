@@ -40,7 +40,6 @@ class ProfileView: View("Nope-Client-KI") {
                             }
                         }
                     }
-
                 }
             }
         }

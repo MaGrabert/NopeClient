@@ -51,6 +51,14 @@ class TournamentView : View("Nope-Client-KI") {
             }
         }
 
+        center {
+            setPrefSize(100.0, 100.0)
+            imageview(url = "See-Through.png") {
+                fitHeightProperty().bind(parent.prefHeight(100.0).toProperty())
+                fitWidthProperty().bind(parent.prefWidth(100.0).toProperty())
+            }
+        }
+
         bottom {
             hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Leave Tournament") {
