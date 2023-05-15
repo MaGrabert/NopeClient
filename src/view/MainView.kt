@@ -69,8 +69,13 @@ class MainView : View("Nope-Client-KI") {
                                 size,
                                 selectedItem.players + ", ${Profile.userName}"
                             )
-                            SocketHandler.refreshingTournamentInfo()
-                            SocketHandler.refreshingPlayerInfo()
+                            SocketHandler.refreshTournamentInfo()
+                            SocketHandler.refreshPlayerInfo()
+                            SocketHandler.shouldMakeMove()
+                            SocketHandler.refreshGameState()
+                            SocketHandler.refreshMatchInfo()
+                            SocketHandler.refreshMatchInvite()
+                            SocketHandler.refreshGameStatus()
                             replaceWith<TournamentView>()
                         } else {
                             println("Nothing was selected")

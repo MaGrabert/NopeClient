@@ -33,6 +33,13 @@ class PopOutView : View("Pop out") {
                         var numberOFMatches: String =
                             toggleGroup.selectedToggle.toString().split("'")[1].replace("'", "")
                         SocketHandler.emit("tournament:create", numberOFMatches.toInt())
+                        SocketHandler.refreshTournamentInfo()
+                        SocketHandler.refreshPlayerInfo()
+                        SocketHandler.shouldMakeMove()
+                        SocketHandler.refreshGameState()
+                        SocketHandler.refreshMatchInfo()
+                        SocketHandler.refreshMatchInvite()
+                        SocketHandler.refreshGameStatus()
                         Profile.isHost = true
                         find<MainView>().replaceWith<TournamentView>()
                         close()

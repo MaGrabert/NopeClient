@@ -43,7 +43,7 @@ object SocketHandler {
         }
 
         this.socket.connect()
-        refreshingTableData()
+        refreshTableData()
     }
 
     /**
@@ -52,29 +52,6 @@ object SocketHandler {
     fun disconnect() {
         this.socket.disconnect()
         println("Socket is disconnected")
-    }
-
-    /**
-     * Refreshes the table data of the current matches
-     */
-    private fun refreshingTableData() {
-        this.socket.on("list:tournaments") { args ->
-            tableData.clear()
-            if (args[0] != null) {
-                val jsonArray: JSONArray = args[0] as JSONArray
-                for (index in 0 until jsonArray.length()) {
-                    try {
-                        val jsonObject: JSONObject = jsonArray.getJSONObject(index)
-                        val tmpTournament = Tournament(jsonObject)
-                        tableData.add(tmpTournament)
-                    } catch (e: JSONException) {
-                        print("No data in getTournamentList!")
-                    }
-                }
-            } else {
-                println("No tournaments in list!")
-            }
-        }
     }
 
     /**
@@ -126,12 +103,36 @@ object SocketHandler {
     }
 
     /**
+     * Refreshes the table data of the current matches
+     */
+    private fun refreshTableData() {
+        this.socket.on("list:tournaments") { args ->
+            tableData.clear()
+            if (args[0] != null) {
+                val jsonArray: JSONArray = args[0] as JSONArray
+                for (index in 0 until jsonArray.length()) {
+                    try {
+                        val jsonObject: JSONObject = jsonArray.getJSONObject(index)
+                        val tmpTournament = Tournament(jsonObject)
+                        tableData.add(tmpTournament)
+                    } catch (e: JSONException) {
+                        print("No data in getTournamentList!")
+                    }
+                }
+            } else {
+                println("No tournaments in list!")
+            }
+        }
+    }
+
+    /**
      * Receives data from the server for tournament info.
      */
-    fun refreshingTournamentInfo() {
+    fun refreshTournamentInfo() {
         this.socket.on("tournament:info") { args ->
             if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event tournament:info: $jsonObject")
                 TournamentInfo.createInfo(jsonObject)
             }
         }
@@ -140,11 +141,69 @@ object SocketHandler {
     /**
      * Receives data from the server for player info.
      */
-    fun refreshingPlayerInfo() {
+    fun refreshPlayerInfo() {
         this.socket.on("tournament:playerInfo") { args ->
             if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event tournament:playerInfo: $jsonObject")
                 TournamentInfo.createPlayerInfo(jsonObject)
+            }
+        }
+    }
+
+    /**
+     * Checks if the AI should make a move.
+     */
+    fun shouldMakeMove() {
+        this.socket.on("game:makeMove") { args ->
+            if (args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event game:makeMove: $jsonObject")
+            }
+        }
+    }
+
+    /**
+     * Receives the current game state.
+     */
+    fun refreshGameState() {
+        this.socket.on("game:state") { args ->
+            if (args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event game:state: $jsonObject")
+            }
+        }
+    }
+
+    /**
+     * Receives the current game status
+     */
+    fun refreshGameStatus() {
+        this.socket.on("game:status") { args ->
+            if (args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event game:status: $jsonObject")
+            }
+        }
+    }
+
+    fun refreshMatchInvite() {
+        this.socket.on("match:invite") { args ->
+            if (args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event match:invite: $jsonObject")
+            }
+        }
+    }
+
+    /**
+     * Receives current events of the match.
+     */
+    fun refreshMatchInfo() {
+        this.socket.on("match:info") { args ->
+            if (args[0] != null) {
+                val jsonObject: JSONObject = args[0] as JSONObject
+                println("Server response on event match:info: $jsonObject")
             }
         }
     }
