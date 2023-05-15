@@ -9,7 +9,13 @@ import socket.HTTPClient
 import socket.SocketHandler
 import tornadofx.*
 
-class SignInView: View("Sign-Up") {
+/**
+ * Shows a sign in window.
+ *
+ * @author Mathis Grabert
+ * @since 18.04.2023
+ */
+class SignInView : View("Sign-Up") {
     private var userName: TextField by singleAssign()
     private var password: TextField by singleAssign()
     private var httpClient = HTTPClient
@@ -30,7 +36,7 @@ class SignInView: View("Sign-Up") {
                 }
                 errorLabel = label()
             }
-            hbox(spacing = 10,alignment = Pos.CENTER) {
+            hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Login") {
                     action {
                         if (userName.text.toString() != "" && password.text.toString() != "") {

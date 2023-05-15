@@ -23,6 +23,10 @@ object SocketHandler {
     private lateinit var socket: Socket
     var tableData = mutableListOf<Tournament>().asObservable()
 
+
+    /**
+     * Creates and connects the client socket with the server socket.
+     */
     fun connect() {
         val opts = IO.Options.builder()
             .setAuth(singletonMap("token", Profile.token))
@@ -42,22 +46,28 @@ object SocketHandler {
         refreshingTableData()
     }
 
+    /**
+     * Disconnects the client socket.
+     */
     fun disconnect() {
         this.socket.disconnect()
         println("Socket is disconnected")
     }
 
+    /**
+     * Refreshes the table data of the current matches
+     */
     private fun refreshingTableData() {
         this.socket.on("list:tournaments") { args ->
             tableData.clear()
-            if(args[0] != null) {
+            if (args[0] != null) {
                 val jsonArray: JSONArray = args[0] as JSONArray
-                for(index in 0 until jsonArray.length()) {
+                for (index in 0 until jsonArray.length()) {
                     try {
                         val jsonObject: JSONObject = jsonArray.getJSONObject(index)
                         val tmpTournament = Tournament(jsonObject)
                         tableData.add(tmpTournament)
-                    } catch (e :JSONException) {
+                    } catch (e: JSONException) {
                         print("No data in getTournamentList!")
                     }
                 }
@@ -67,6 +77,11 @@ object SocketHandler {
         }
     }
 
+    /**
+     * Sends data over the socket as String and return response.
+     *
+     * @return response The responding data as JSONObject
+     */
     fun emit(event: String, data: String): JSONObject {
         var response = JSONObject()
 
@@ -78,6 +93,11 @@ object SocketHandler {
         return response
     }
 
+    /**
+     * Sends data over the socket as int.
+     *
+     * @return response The responding data as JSONObject
+     */
     fun emit(event: String, data: Int): JSONObject {
         var response = JSONObject()
 
@@ -89,6 +109,11 @@ object SocketHandler {
         return response
     }
 
+    /**
+     * Sends data over the socket as JSONObject.
+     *
+     * @return response The responding data as JSONObject
+     */
     fun emit(event: String): JSONObject {
         var response = JSONObject()
 
@@ -100,18 +125,24 @@ object SocketHandler {
         return response
     }
 
+    /**
+     * Receives data from the server for tournament info.
+     */
     fun refreshingTournamentInfo() {
         this.socket.on("tournament:info") { args ->
-            if(args[0] != null) {
+            if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
                 TournamentInfo.createInfo(jsonObject)
             }
         }
     }
 
+    /**
+     * Receives data from the server for player info.
+     */
     fun refreshingPlayerInfo() {
         this.socket.on("tournament:playerInfo") { args ->
-            if(args[0] != null) {
+            if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
                 TournamentInfo.createPlayerInfo(jsonObject)
             }

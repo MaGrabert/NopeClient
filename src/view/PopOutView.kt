@@ -7,8 +7,13 @@ import javafx.scene.control.ToggleGroup
 import socket.SocketHandler
 import tornadofx.*
 
-
-class PopOutView: View("Pop out") {
+/**
+ * Shows a popup window.
+ *
+ * @author Mathis Grabert
+ * @since 04.05.2023
+ */
+class PopOutView : View("Pop out") {
     private val toggleGroup = ToggleGroup()
 
     override val root = vbox {
@@ -25,7 +30,8 @@ class PopOutView: View("Pop out") {
             hbox(alignment = Pos.CENTER) {
                 button("Create") {
                     action {
-                        var numberOFMatches: String = toggleGroup.selectedToggle.toString().split("'")[1].replace("'", "")
+                        var numberOFMatches: String =
+                            toggleGroup.selectedToggle.toString().split("'")[1].replace("'", "")
                         SocketHandler.emit("tournament:create", numberOFMatches.toInt())
                         Profile.isHost = true
                         find<MainView>().replaceWith<TournamentView>()

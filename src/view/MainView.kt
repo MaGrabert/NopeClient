@@ -10,12 +10,12 @@ import socket.SocketHandler
 import tornadofx.*
 
 /**
- * Shows what the AI currently do
+ * Shows the list of all matches
  *
  * @author Mathis Grabert
  * @since 07.04.2023
  */
-class MainView: View("Nope-Client-KI") {
+class MainView : View("Nope-Client-KI") {
 
     override val root = borderpane() {
         prefWidth = 1024.0
@@ -34,7 +34,7 @@ class MainView: View("Nope-Client-KI") {
                     }
                 }
                 menu("Game") {
-                    item("Profile"){
+                    item("Profile") {
                         action {
                             replaceWith<ProfileView>()
                         }
@@ -55,15 +55,20 @@ class MainView: View("Nope-Client-KI") {
         }
 
         bottom {
-            hbox(spacing = 10,alignment = Pos.CENTER) {
+            hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Join Tournament") {
                     action {
                         val selectedItem = tableview.selectionModel.selectedItem
-                        if(selectedItem != null) {
+                        if (selectedItem != null) {
                             Profile.isInTournament = true
                             SocketHandler.emit("tournament:join", selectedItem.id)
                             val size = (selectedItem.size.toInt() + 1).toString()
-                            TournamentInfo.createJoinInfo(selectedItem.id, selectedItem.status, size, selectedItem.players + ", ${Profile.userName}")
+                            TournamentInfo.createJoinInfo(
+                                selectedItem.id,
+                                selectedItem.status,
+                                size,
+                                selectedItem.players + ", ${Profile.userName}"
+                            )
                             SocketHandler.refreshingTournamentInfo()
                             SocketHandler.refreshingPlayerInfo()
                             replaceWith<TournamentView>()

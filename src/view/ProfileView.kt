@@ -5,12 +5,12 @@ import socket.SocketHandler
 import tornadofx.*
 
 /**
- * Shows the result of the matches
+ * Shows the player profile
  *
  * @author Mathis Grabert
  * @since 07.04.2023
  */
-class ProfileView: View("Nope-Client-KI") {
+class ProfileView : View("Nope-Client-KI") {
     override val root = borderpane() {
         prefWidth = 1024.0
         prefHeight = 800.0
@@ -27,14 +27,14 @@ class ProfileView: View("Nope-Client-KI") {
                     }
                 }
                 menu("Game") {
-                    if(!Profile.isInTournament) {
-                        item("All Tournaments"){
+                    if (!Profile.isInTournament) {
+                        item("All Tournaments") {
                             action {
                                 replaceWith<MainView>()
                             }
                         }
                     } else {
-                        item("Match"){
+                        item("Match") {
                             action {
                                 replaceWith<TournamentView>()
                             }

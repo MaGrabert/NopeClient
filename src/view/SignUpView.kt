@@ -12,7 +12,7 @@ import tornadofx.*
  * @author Mathis Grabert
  * @since 07.04.2023
  */
-class SignUpView: View("Sign-Up") {
+class SignUpView : View("Sign-Up") {
     private var userName: TextField by singleAssign()
     private var password: TextField by singleAssign()
     private var firstName: TextField by singleAssign()
@@ -43,7 +43,7 @@ class SignUpView: View("Sign-Up") {
                 }
                 errorLabel = label()
             }
-            hbox(spacing = 10,alignment = Pos.CENTER) {
+            hbox(spacing = 10, alignment = Pos.CENTER) {
                 button("Register") {
                     action {
                         if (userName.text.toString() != "" && password.text.toString() != "" && firstName.text.toString() != "" && lastName.text.toString() != "") {

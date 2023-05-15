@@ -6,6 +6,12 @@ import javafx.geometry.Pos
 import socket.SocketHandler
 import tornadofx.*
 
+/**
+ * Shows the tournament
+ *
+ * @author Mathis Grabert
+ * @since 03.05.2023
+ */
 class TournamentView : View("Nope-Client-KI") {
     override val root = borderpane() {
         prefWidth = 1024.0
@@ -23,7 +29,7 @@ class TournamentView : View("Nope-Client-KI") {
                     }
                 }
                 menu("Game") {
-                    item("Profile"){
+                    item("Profile") {
                         action {
                             replaceWith<ProfileView>()
                         }
@@ -52,11 +58,7 @@ class TournamentView : View("Nope-Client-KI") {
         }
 
         center {
-            setPrefSize(100.0, 100.0)
-            imageview(url = "See-Through.png") {
-                fitHeightProperty().bind(parent.prefHeight(100.0).toProperty())
-                fitWidthProperty().bind(parent.prefWidth(100.0).toProperty())
-            }
+
         }
 
         bottom {
@@ -71,7 +73,7 @@ class TournamentView : View("Nope-Client-KI") {
                     }
                 }
 
-                if(Profile.isHost) {
+                if (Profile.isHost) {
                     button("Start Tournament") {
                         action {
                             SocketHandler.emit("tournament:start")

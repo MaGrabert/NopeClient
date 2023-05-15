@@ -15,6 +15,7 @@ class Styles : Stylesheet() {
     companion object {
         val label by cssclass()
     }
+
     init {
         label {
             fontSize = 17.px

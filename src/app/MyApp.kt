@@ -5,7 +5,7 @@ import tornadofx.importStylesheet
 import view.SignInView
 
 /**
- * This is the start point of the program
+ * This is the start point of the program.
  *
  * @author Mathis Grabert
  * @since 07.04.2023
