@@ -19,6 +19,7 @@ enum class Action {
  * @since 11.05.2023
  */
 object AI {
+    var hand = ArrayList<Card>()
 
     /**
      * Creates a card as JSONObject.

@@ -47,7 +47,6 @@ class SignInView : View("Sign-Up") {
                             replaceWith<MainView>()
                             currentWindow?.sizeToScene()
                         } else {
-                            println(userName.text.toString() + " " + password.text.toString())
                             errorLabel.text = "A Field in the mask was empty!"
                         }
                     }
