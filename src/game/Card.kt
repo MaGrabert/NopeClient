@@ -46,10 +46,12 @@ enum class CardColor(val value: String?) {
     NULL(null);
 
     companion object {
-        fun getElement(param: String): CardColor {
+        fun getElement(param: String?): CardColor {
             for (element: CardColor in CardColor.values()) {
                 if (element.value == param) {
                     return element
+                } else {
+                    return NULL
                 }
             }
             throw IllegalArgumentException("$param is a illegal value!")
@@ -87,4 +89,4 @@ enum class CardValue(val value: Int?) {
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-data class Card(val type: CardType, val cardColor: CardColor, val cardValue: CardValue)
+data class Card(val type: CardType, val cardColor1: CardColor?, val cardColor2: CardColor?, val cardValue: CardValue?)

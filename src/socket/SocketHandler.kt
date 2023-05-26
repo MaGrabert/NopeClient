@@ -174,6 +174,7 @@ object SocketHandler {
                 println("Server response on event game:state: $jsonObject")
                 try {
                     AI.fillHand(jsonObject.getJSONArray("hand"))
+                    AI.setTopCard(jsonObject.getJSONObject("topCard"))
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
