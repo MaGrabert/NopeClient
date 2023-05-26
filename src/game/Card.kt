@@ -6,8 +6,23 @@ package game
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-enum class CardType {
-    NUMBER, JOKER, REBOOT, SEE_THROUGH, SELECTION
+enum class CardType(val value: String) {
+    NUMBER("number"),
+    JOKER("joker"),
+    REBOOT("reboot"),
+    SEE_THROUGH("see-through"),
+    SELECTION("selection");
+
+    companion object {
+        fun getElement(value: String): CardType {
+            for (element: CardType in CardType.values()) {
+                if (element.value == value) {
+                    return element
+                }
+            }
+            throw IllegalArgumentException("$value is a illegal value!")
+        }
+    }
 }
 
 /**
@@ -16,8 +31,30 @@ enum class CardType {
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-enum class CardColor {
-    RED, BLUE, GREEN, YELLOW, RED_YELLOW, BLUE_GREEN, YELLOW_BLUE, RED_BLUE, RED_GREEN, YELLOW_GREEN, MULTI, NULL
+enum class CardColor(val value: String?) {
+    RED("red"),
+    BLUE("blue"),
+    GREEN("green"),
+    YELLOW("yellow"),
+    RED_YELLOW("red-yellow"),
+    BLUE_GREEN("blue-green"),
+    YELLOW_BLUE("yellow-blue"),
+    RED_BLUE("red-blue"),
+    RED_GREEN("red-green"),
+    YELLOW_GREEN("yellow-green"),
+    MULTI("multi"),
+    NULL(null);
+
+    companion object {
+        fun getElement(param: String): CardColor {
+            for (element: CardColor in CardColor.values()) {
+                if (element.value == param) {
+                    return element
+                }
+            }
+            throw IllegalArgumentException("$param is a illegal value!")
+        }
+    }
 }
 
 /**
@@ -26,8 +63,22 @@ enum class CardColor {
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-enum class CardValue {
-    ONE, TWO, THREE, NULL
+enum class CardValue(val value: Int?) {
+    ONE(1),
+    TWO(2),
+    THREE(3),
+    NULL(null);
+
+    companion object {
+        fun getElement(param: Int): CardValue {
+            for (element: CardValue in CardValue.values()) {
+                if (element.value == param) {
+                    return element
+                }
+            }
+            throw IllegalArgumentException("$param is a illegal value!")
+        }
+    }
 }
 
 /**

@@ -1,6 +1,7 @@
 package socket
 
 import app.Profile
+import game.AI
 import game.Tournament
 import game.TournamentInfo
 import io.socket.client.Ack
@@ -22,7 +23,6 @@ import java.util.Collections.singletonMap
 object SocketHandler {
     private lateinit var socket: Socket
     var tableData = mutableListOf<Tournament>().asObservable()
-
 
     /**
      * Creates and connects the client socket with the server socket.
@@ -159,6 +159,7 @@ object SocketHandler {
             if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
                 println("Server response on event game:makeMove: $jsonObject")
+                AI.makeMove()
             }
         }
     }
@@ -171,6 +172,11 @@ object SocketHandler {
             if (args[0] != null) {
                 val jsonObject: JSONObject = args[0] as JSONObject
                 println("Server response on event game:state: $jsonObject")
+                try {
+                    AI.fillHand(jsonObject.getJSONArray("hand"))
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
             }
         }
     }

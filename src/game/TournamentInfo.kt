@@ -4,6 +4,7 @@ import app.Profile
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import socket.SocketHandler
 
 /**
  * The info of a tournament
