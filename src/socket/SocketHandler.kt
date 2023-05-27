@@ -55,6 +55,22 @@ object SocketHandler {
     }
 
     /**
+     * Sends data over the socket as JSONObject and return response.
+     *
+     * @return response The responding data as JSONObject
+     */
+    fun emit(event: String, data: JSONObject): JSONObject {
+        var response = JSONObject()
+
+        this.socket.emit(event, data, Ack { acknowledgement ->
+            response = acknowledgement[0] as JSONObject
+            println("Server response on event $event: $response")
+        })
+
+        return response
+    }
+
+    /**
      * Sends data over the socket as String and return response.
      *
      * @return response The responding data as JSONObject

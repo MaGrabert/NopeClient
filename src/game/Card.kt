@@ -50,8 +50,6 @@ enum class CardColor(val value: String?) {
             for (element: CardColor in CardColor.values()) {
                 if (element.value == param) {
                     return element
-                } else {
-                    return NULL
                 }
             }
             throw IllegalArgumentException("$param is a illegal value!")
