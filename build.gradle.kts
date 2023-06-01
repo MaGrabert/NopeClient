@@ -27,7 +27,7 @@ dependencies {
 
     implementation("no.tornado:tornadofx:1.7.20")
 
-    implementation("io.socket:socket.io-client:2.0.0") {
+    implementation("io.socket:socket.io-client:2.0.1") {
         exclude("org.json', module: 'json")
     }
 }

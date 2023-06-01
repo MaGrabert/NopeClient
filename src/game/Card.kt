@@ -11,7 +11,8 @@ enum class CardType(val value: String) {
     JOKER("joker"),
     REBOOT("reboot"),
     SEE_THROUGH("see-through"),
-    SELECTION("selection");
+    SELECTION("selection"),
+    NULL("null");
 
     companion object {
         fun getElement(value: String): CardType {
@@ -87,4 +88,4 @@ enum class CardValue(val value: Int?) {
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-data class Card(val type: CardType, val cardColor1: CardColor?, val cardColor2: CardColor?, val cardValue: CardValue?)
+data class Card(val type: CardType, val cardColor1: CardColor?, val cardColor2: CardColor?, val cardValue: CardValue?, val select: CardValue?, val selectValue: CardValue?, val selectedColor: CardColor?)

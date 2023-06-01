@@ -10,7 +10,7 @@ import io.socket.client.Socket
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import tornadofx.asObservable
+import tornadofx.*
 import java.net.URI
 import java.util.Collections.singletonMap
 
@@ -171,11 +171,16 @@ object SocketHandler {
      * Checks if the AI should make a move.
      */
     fun shouldMakeMove() {
-        this.socket.on("game:makeMove") { args ->
-            if (args[0] != null) {
-                val jsonObject: JSONObject = args[0] as JSONObject
-                println("Server response on event game:makeMove: $jsonObject")
-                AI.makeMove()
+        socket.on("game:makeMove") { args ->
+            val response = args[0] as JSONObject
+            println("Server response on event game:makeMove: $response")
+            val ack = args[1] as Ack
+            val move = AI.makeMove()
+            println("Client message to server on event game:makeMove: $move")
+            try {
+                ack.call(move)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

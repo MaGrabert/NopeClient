@@ -27,12 +27,12 @@ object AI {
 
     fun setTopCard(topUpdate: JSONObject) {
         try {
-            var colors: String = topUpdate.getString("color")
-            var color1: String?
-            var color2: String?
+            val colors: String = topUpdate.getString("color")
+            val color1: String?
+            val color2: String?
 
-            var type: String = topUpdate.getString("type")
-            var value: Int = topUpdate.getString("value").toInt()
+            val type: String = topUpdate.getString("type")
+            val value: Int = topUpdate.getString("value").toInt()
 
             if(colors.split("-").size == 2) {
                 color1 = colors.split("-")[0]
@@ -42,7 +42,9 @@ object AI {
                 color2 = null
             }
 
-            this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
+            if(type == "number") {
+                this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+            }
 
         } catch(e: JSONException) {
             e.printStackTrace()
@@ -52,28 +54,27 @@ object AI {
     fun fillHand(updateHand: JSONArray) {
         hand.clear()
         for(index in 0 until updateHand.length()) {
-            var jsonCard: JSONObject = updateHand.getJSONObject(index)
+            val jsonCard: JSONObject = updateHand.getJSONObject(index)
             try {
-                var colors: String = jsonCard.getString("color")
+                val colors: String = jsonCard.getString("color")
                 var color1: String?
                 var color2: String?
 
-                var type: String = jsonCard.getString("type")
-                var value: Int = jsonCard.getString("value").toInt()
+                val type: String = jsonCard.getString("type")
+                val value: Int = jsonCard.getString("value").toInt()
 
                 if(colors.split("-").size == 2) {
                     color1 = colors.split("-")[0]
                     color2 = colors.split("-")[1]
-                    println("Before Card: color1: $color1 & color2: $color2")
                 } else {
                     color1 = colors
                     color2 = null
-                    println("Before color1: $color1")
                 }
 
-                val card = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
-                println("After Card: color1: ${card.cardColor1.toString()} & color2: ${card.cardColor2.toString()}")
-                hand.add(card)
+                if(type == "number") {
+                    val card = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+                    hand.add(card)
+                }
 
             } catch(e: JSONException) {
                 e.printStackTrace()
@@ -86,13 +87,23 @@ object AI {
      *
      * @return jsonObject The card as JSONObject
      */
-    fun createJSONCard(card: Card): JSONObject {
-        var jsonObject = JSONObject()
+    private fun createJSONCard(card: Card): JSONObject {
+        val jsonObject = JSONObject()
 
         jsonObject.put("type", card.type.value)
-        jsonObject.put("color", card.cardColor1?.value ?: "null")
-        jsonObject.put("color", card.cardColor2?.value ?: "null")
+
+        if(card.cardColor1?.value != null && card.cardColor2?.value != null) {
+            jsonObject.put("color", card.cardColor1.value + "-" + card.cardColor2.value)
+        } else if(card.cardColor1?.value != null && card.cardColor2?.value == null){
+            jsonObject.put("color", card.cardColor1.value)
+        } else {
+            jsonObject.put("color", "null")
+        }
+
         jsonObject.put("value", card.cardValue?.value ?: "null")
+        jsonObject.put("select", card.select?.value ?: "null")
+        jsonObject.put("selectValue", card.selectValue?.value ?: "null")
+        jsonObject.put("selectedColor", card.selectedColor?.value ?: "null")
 
         return jsonObject
     }
@@ -100,7 +111,7 @@ object AI {
     /**
      * Sends cards to the server.
      */
-    fun sendCards(
+    private fun sendCards(
         action: Action,
         card1: JSONObject?,
         card2: JSONObject?,
@@ -118,12 +129,13 @@ object AI {
         return jsonObject
     }
 
-    fun makeMove() {
+    fun makeMove() :JSONObject {
+        var answer: JSONObject = JSONObject()
         if(this.topCard.type == CardType.NUMBER) {
             val tmpHand = ArrayList<Card>()
 
             for(card: Card in hand) {
-                if(card.cardColor1 == topCard.cardColor1 || card.cardColor1 == topCard.cardColor2 || card.cardColor2 == topCard.cardColor1 || card.cardColor2 == topCard.cardColor2) {
+                if(card.cardColor1 == topCard.cardColor1 || card.cardColor1 == topCard.cardColor2 || card.cardColor2 == topCard.cardColor1 || card.cardColor2 == topCard.cardColor2 || card.cardColor1 == CardColor.MULTI) {
                     if(tmpHand.size < (topCard.cardValue?.value ?: 0)) {
                         tmpHand.add(card)
                     }
@@ -131,31 +143,31 @@ object AI {
             }
 
             if(tmpHand.size < (topCard.cardValue?.value ?: 0)) { // If the AI can't throw cards
-                val answer = sendCards(Action.NOPE,null,null,null, "I don't have the right cards")
-                SocketHandler.emit("game:makeMove", answer)
+                answer = sendCards(Action.NOPE,null,null,null, "I don't have the right cards")
+
             } else {
                 if(tmpHand.size == 1) {
-                    val answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),null,null, "I have the right cards")
+                    answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),null,null, "I have the right card")
                     println("Put card: ${tmpHand[0]}")
-                    SocketHandler.emit("game:makeMove", answer)
                 } else if(tmpHand.size == 2) {
-                    val answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),null, "I have the right cards")
+                    answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),null, "I have the right cards")
                     println("Put cards: ${tmpHand[0]} ${tmpHand[1]}")
-                    SocketHandler.emit("game:makeMove", answer)
                 } else if(tmpHand.size == 3) {
-                    val answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),createJSONCard(tmpHand[2]), "I have the right cards")
+                    answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),createJSONCard(tmpHand[2]), "I have the right cards")
                     println("Put cards: ${tmpHand[0]} ${tmpHand[1]} ${tmpHand[2]}")
-                    SocketHandler.emit("game:makeMove", answer)
                 }
             }
         } else if(this.topCard.type == CardType.JOKER) {
+            answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
 
         } else if(this.topCard.type == CardType.REBOOT) {
+            answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
 
         } else if(this.topCard.type == CardType.SEE_THROUGH) {
-
+            answer = JSONObject()
         } else if(this.topCard.type == CardType.SELECTION) {
-
+            answer = JSONObject()
         }
+        return answer
     }
 }
