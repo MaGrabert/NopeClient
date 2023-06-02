@@ -6,13 +6,13 @@ package game
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-enum class CardType(val value: String) {
+enum class CardType(val value: String?) {
     NUMBER("number"),
     JOKER("joker"),
     REBOOT("reboot"),
     SEE_THROUGH("see-through"),
     SELECTION("selection"),
-    NULL("null");
+    NULL(null);
 
     companion object {
         fun getElement(value: String): CardType {

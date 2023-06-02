@@ -97,13 +97,13 @@ object AI {
         } else if(card.cardColor1?.value != null && card.cardColor2?.value == null){
             jsonObject.put("color", card.cardColor1.value)
         } else {
-            jsonObject.put("color", "null")
+            jsonObject.put("color", JSONObject.NULL)
         }
 
-        jsonObject.put("value", card.cardValue?.value ?: "null")
-        jsonObject.put("select", card.select?.value ?: "null")
-        jsonObject.put("selectValue", card.selectValue?.value ?: "null")
-        jsonObject.put("selectedColor", card.selectedColor?.value ?: "null")
+        jsonObject.put("value", card.cardValue?.value ?: JSONObject.NULL)
+        jsonObject.put("select", card.select?.value ?: JSONObject.NULL)
+        jsonObject.put("selectValue", card.selectValue?.value ?: JSONObject.NULL)
+        jsonObject.put("selectedColor", card.selectedColor?.value ?: JSONObject.NULL)
 
         return jsonObject
     }
@@ -121,9 +121,25 @@ object AI {
         var jsonObject = JSONObject()
 
         jsonObject.put("type", action.toString().lowercase())
-        jsonObject.put("card1", card1)
-        jsonObject.put("card2", card2)
-        jsonObject.put("card3", card3)
+
+        if(card1 != null) {
+            jsonObject.put("card1", card1)
+        } else {
+            jsonObject.put("card1", JSONObject.NULL)
+        }
+
+        if(card2 != null) {
+            jsonObject.put("card2", card2)
+        } else {
+            jsonObject.put("card2", JSONObject.NULL)
+        }
+
+        if(card3 != null) {
+            jsonObject.put("card3", card3)
+        } else {
+            jsonObject.put("card3", JSONObject.NULL)
+        }
+
         jsonObject.put("reason", reason)
 
         return jsonObject
