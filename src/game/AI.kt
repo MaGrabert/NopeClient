@@ -24,6 +24,7 @@ object AI {
     private var hand = ArrayList<Card>()
     private lateinit var topCard: Card
     private var takeCard: Boolean = false
+    private lateinit var lastTopCard: Card
 
     fun setTopCard(topUpdate: JSONObject) {
         try {
@@ -149,13 +150,10 @@ object AI {
         var answer: JSONObject = JSONObject()
         if(tmpHand.size == 1) {
             answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),null,null, "I have the right card")
-            println("Put card: ${tmpHand[0]}")
         } else if(tmpHand.size == 2) {
             answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),null, "I have the right cards")
-            println("Put cards: ${tmpHand[0]} ${tmpHand[1]}")
         } else if(tmpHand.size == 3) {
             answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),createJSONCard(tmpHand[2]), "I have the right cards")
-            println("Put cards: ${tmpHand[0]} ${tmpHand[1]} ${tmpHand[2]}")
         }
         return answer
     }
@@ -166,16 +164,9 @@ object AI {
             val listColor1 = ArrayList<Card>()
             val listColor2 = ArrayList<Card>()
 
-            for(card: Card in hand) {
-                if(listColor1.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2)) {
-                    listColor1.add(card)
-                }
-                if(listColor2.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2)) {
-                    listColor2.add(card)
-                }
-            }
+            fillColorLists(listColor1, listColor2)
 
-            println("Liste 1: $listColor1 List 2: $listColor2")
+            specialAtTheEnd(listColor1, listColor2)
 
             if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && takeCard) {
                 takeCard = false
@@ -212,5 +203,46 @@ object AI {
             answer = JSONObject()
         }
         return answer
+    }
+
+    private fun fillColorLists(
+        listColor1: ArrayList<Card>,
+        listColor2: ArrayList<Card>
+    ) {
+        for (card: Card in hand) {
+            if (listColor1.size < (topCard.cardValue?.value
+                    ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
+            ) {
+                listColor1.add(card)
+            }
+            if (listColor2.size < (topCard.cardValue?.value
+                    ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
+            ) {
+                listColor2.add(card)
+            }
+        }
+    }
+
+    private fun specialAtTheEnd(
+        listColor1: ArrayList<Card>,
+        listColor2: ArrayList<Card>
+    ) {
+        var specialCard: Card
+
+        for (card: Card in listColor1) {
+            if (card.cardColor1 == CardColor.MULTI) {
+                specialCard = card
+                listColor1.remove(card)
+                listColor1.add(specialCard)
+            }
+        }
+
+        for (card: Card in listColor2) {
+            if (card.cardColor2 == CardColor.MULTI) {
+                specialCard = card
+                listColor2.remove(card)
+                listColor2.add(specialCard)
+            }
+        }
     }
 }
