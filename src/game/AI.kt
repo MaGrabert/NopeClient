@@ -3,7 +3,6 @@ package game
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import socket.SocketHandler
 
 /**
  * All actions that the AI could do.
@@ -24,6 +23,7 @@ enum class Action {
 object AI {
     private var hand = ArrayList<Card>()
     private lateinit var topCard: Card
+    private var takeCard: Boolean = false
 
     fun setTopCard(topUpdate: JSONObject) {
         try {
@@ -116,7 +116,7 @@ object AI {
         card1: JSONObject?,
         card2: JSONObject?,
         card3: JSONObject?,
-        reason: String = "Because I can!"
+        reason: String? = "Because I can!"
     ): JSONObject {
         var jsonObject = JSONObject()
 
@@ -177,27 +177,38 @@ object AI {
 
             println("Liste 1: $listColor1 List 2: $listColor2")
 
-            if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0)) {
-                answer = sendCards(Action.NOPE,null,null,null, "I don't have the right cards")
+            if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && takeCard) {
+                takeCard = false
+                answer = sendCards(Action.NOPE,null,null,null, null)
+            } else if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && !takeCard) {
+                takeCard = true
+                answer = sendCards(Action.TAKE,null,null,null, null)
             } else if(listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0)) {
+                takeCard = false
                 answer = buildAnswer(listColor1)
             } else if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+                takeCard = false
                 answer = buildAnswer(listColor2)
             } else if(listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+                takeCard = false
                 answer = buildAnswer(listColor1)
             } else {
                 error("Something went wrong in List Choice")
             }
 
         } else if(this.topCard.type == CardType.JOKER) {
+            takeCard = false
             answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
 
         } else if(this.topCard.type == CardType.REBOOT) {
+            takeCard = false
             answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
 
         } else if(this.topCard.type == CardType.SEE_THROUGH) {
+            takeCard = false
             answer = JSONObject()
         } else if(this.topCard.type == CardType.SELECTION) {
+            takeCard = false
             answer = JSONObject()
         }
         return answer
