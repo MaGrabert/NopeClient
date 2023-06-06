@@ -88,4 +88,4 @@ enum class CardValue(val value: Int?) {
  * @author Mathis Grabert
  * @since 11.05.2023
  */
-data class Card(val type: CardType, val cardColor1: CardColor?, val cardColor2: CardColor?, val cardValue: CardValue?, val select: CardValue?, val selectValue: CardValue?, val selectedColor: CardColor?)
+data class Card(val type: CardType, val cardColor1: CardColor?, val cardColor2: CardColor?, val cardValue: CardValue?)

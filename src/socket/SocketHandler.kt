@@ -176,11 +176,10 @@ object SocketHandler {
             println("Server response on event game:makeMove: $response")
             val ack = args[1] as Ack
             val move = AI.makeMove()
-            println("Client message to server on event game:makeMove: $move")
             try {
                 ack.call(move)
             } catch (e: Exception) {
-                e.printStackTrace()
+                println("Problem in make move")
             }
         }
     }
@@ -195,13 +194,25 @@ object SocketHandler {
                 println("Server response on event game:state: $jsonObject")
                 try {
                     AI.fillHand(jsonObject.getJSONArray("hand"))
+                } catch (e: JSONException) {
+                    println("Problem to get hand")
+                }
+                try {
                     AI.setTopCard(jsonObject.getJSONObject("topCard"))
-                    AI.setLastTopCard(jsonObject.getJSONObject("lastTopCard"))
+                } catch (e: JSONException) {
+                    println("Problem to get topcard")
+                }
+                try {
                     val playerList: JSONArray = jsonObject.getJSONArray("players")
                     val currentPlayerIndex: Int = jsonObject.getString("currentPlayerIdx").toInt()
-                    AI.setNextPlayerHandSize(playerList, (currentPlayerIndex + 1))
+                    AI.setNextPlayerHandSize(playerList, (0 + 1))
                 } catch (e: JSONException) {
-                    e.printStackTrace()
+                    println("Problem to get next player index")
+                }
+                try {
+                    AI.setLastTopCard(jsonObject.getJSONObject("lastTopCard"))
+                } catch (e: JSONException) {
+                    println("Last top card does not exist")
                 }
             }
         }

@@ -44,8 +44,8 @@ object AI {
                 color2 = null
             }
 
-            if(type == "selection") {
-                this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+            if(type != "selection") {
+                this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
             }
 
         } catch(e: JSONException) {
@@ -81,7 +81,7 @@ object AI {
                 }
 
                 if(type != "selection") {
-                    this.lastTopCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+                    this.lastTopCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
                 }
 
             } catch(e: JSONException) {
@@ -111,7 +111,7 @@ object AI {
                 }
 
                 if(type == "number") {
-                    val card = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+                    val card = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
                     hand.add(card)
                 }
 
@@ -140,9 +140,9 @@ object AI {
         }
 
         jsonObject.put("value", card.cardValue?.value ?: JSONObject.NULL)
-        jsonObject.put("select", card.select?.value ?: JSONObject.NULL)
-        jsonObject.put("selectValue", card.selectValue?.value ?: JSONObject.NULL)
-        jsonObject.put("selectedColor", card.selectedColor?.value ?: JSONObject.NULL)
+        //jsonObject.put("select", card.select?.value ?: JSONObject.NULL)
+        //jsonObject.put("selectValue", card.selectValue?.value ?: JSONObject.NULL)
+        //jsonObject.put("selectedColor", card.selectedColor?.value ?: JSONObject.NULL)
 
         return jsonObject
     }
