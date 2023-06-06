@@ -197,6 +197,9 @@ object SocketHandler {
                     AI.fillHand(jsonObject.getJSONArray("hand"))
                     AI.setTopCard(jsonObject.getJSONObject("topCard"))
                     AI.setLastTopCard(jsonObject.getJSONObject("lastTopCard"))
+                    val playerList: JSONArray = jsonObject.getJSONArray("players")
+                    val currentPlayerIndex: Int = jsonObject.getString("currentPlayerIdx").toInt()
+                    AI.setNextPlayerHandSize(playerList, (currentPlayerIndex + 1))
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }

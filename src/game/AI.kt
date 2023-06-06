@@ -25,6 +25,7 @@ object AI {
     private lateinit var topCard: Card
     private var takeCard: Boolean = false
     private var lastTopCard: Card? = null
+    private var nextPlayerHandSize: Int = 0
 
     fun setTopCard(topUpdate: JSONObject) {
         try {
@@ -47,6 +48,15 @@ object AI {
                 this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
             }
 
+        } catch(e: JSONException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun setNextPlayerHandSize(playerList: JSONArray, nextPlayerIndex: Int) {
+        try {
+            val nextPlayer: JSONObject = playerList.getJSONObject(nextPlayerIndex)
+            this.nextPlayerHandSize = nextPlayer.getString("handSize").toInt()
         } catch(e: JSONException) {
             e.printStackTrace()
         }
@@ -225,7 +235,41 @@ object AI {
     }
 
     private fun chooseBestCard(): Card {
-        return hand[0]
+        lateinit var smallCard: Card
+        lateinit var midCard: Card
+        lateinit var bigCard: Card
+
+        for(card: Card in hand) {
+            if(card.cardColor1 == topCard.cardColor1 || card.cardColor1 == topCard.cardColor2 || card.cardColor2 == topCard.cardColor1 || (card.cardColor2 == topCard.cardColor2 && card.cardColor1 != null)) {
+                if(card.cardValue?.value == 1) {
+                    smallCard = card
+                } else if(card.cardValue?.value == 2) {
+                    midCard = card
+                } else if(card.cardValue?.value == 3) {
+                    bigCard = card
+                }
+            }
+        }
+
+        if(this.nextPlayerHandSize == 1) {
+            return smallCard
+        } else if(this.nextPlayerHandSize <= 5) {
+            if(midCard != null) {
+                return midCard
+            } else if(midCard == null && smallCard != null){
+                return smallCard
+            } else {
+                return bigCard
+            }
+        } else {
+            if(bigCard != null) {
+                return bigCard
+            } else if(bigCard == null && midCard != null){
+                return midCard
+            } else {
+                return smallCard
+            }
+        }
     }
 
     private fun searchSpecialCard(): Card? {
