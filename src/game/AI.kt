@@ -24,7 +24,7 @@ object AI {
     private var hand = ArrayList<Card>()
     private lateinit var topCard: Card
     private var takeCard: Boolean = false
-    private lateinit var lastTopCard: Card
+    private var lastTopCard: Card? = null
 
     fun setTopCard(topUpdate: JSONObject) {
         try {
@@ -43,12 +43,40 @@ object AI {
                 color2 = null
             }
 
-            if(type == "number") {
+            if(type == "selection") {
                 this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
             }
 
         } catch(e: JSONException) {
             e.printStackTrace()
+        }
+    }
+
+    fun setLastTopCard(lastTopUpdate: JSONObject?) {
+        if(lastTopUpdate != null) {
+            try {
+                val colors: String = lastTopUpdate.getString("color")
+                val color1: String?
+                val color2: String?
+
+                val type: String = lastTopUpdate.getString("type")
+                val value: Int = lastTopUpdate.getString("value").toInt()
+
+                if(colors.split("-").size == 2) {
+                    color1 = colors.split("-")[0]
+                    color2 = colors.split("-")[1]
+                } else {
+                    color1 = colors
+                    color2 = null
+                }
+
+                if(type != "selection") {
+                    this.lastTopCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value), null, null, null)
+                }
+
+            } catch(e: JSONException) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -161,43 +189,24 @@ object AI {
     fun makeMove() :JSONObject {
         var answer: JSONObject = JSONObject()
         if(this.topCard.type == CardType.NUMBER) {
-            val listColor1 = ArrayList<Card>()
-            val listColor2 = ArrayList<Card>()
-
-            fillColorLists(listColor1, listColor2)
-
-            specialAtTheEnd(listColor1, listColor2)
-
-            if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && takeCard) {
-                takeCard = false
-                answer = sendCards(Action.NOPE,null,null,null, null)
-            } else if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && !takeCard) {
-                takeCard = true
-                answer = sendCards(Action.TAKE,null,null,null, null)
-            } else if(listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0)) {
-                takeCard = false
-                answer = buildAnswer(listColor1)
-            } else if(listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
-                takeCard = false
-                answer = buildAnswer(listColor2)
-            } else if(listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
-                takeCard = false
-                answer = buildAnswer(listColor1)
-            } else {
-                error("Something went wrong in List Choice")
-            }
+            answer = reactOnColor()
 
         } else if(this.topCard.type == CardType.JOKER) {
             takeCard = false
-            answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
+            answer = searchBestCard()
 
         } else if(this.topCard.type == CardType.REBOOT) {
             takeCard = false
-            answer = sendCards(Action.PUT, createJSONCard(hand[0]), null, null, "I have the right card")
+            answer = searchBestCard()
 
         } else if(this.topCard.type == CardType.SEE_THROUGH) {
             takeCard = false
-            answer = JSONObject()
+            if(this.lastTopCard != null) {
+                this.topCard = this.lastTopCard!!
+                answer = makeMove()
+            } else {
+                answer = searchBestCard()
+            }
         } else if(this.topCard.type == CardType.SELECTION) {
             takeCard = false
             answer = JSONObject()
@@ -205,19 +214,69 @@ object AI {
         return answer
     }
 
+    private fun searchBestCard(): JSONObject {
+        var card: Card? = searchSpecialCard()
+
+        if (card != null) {
+            card = chooseBestCard()
+        }
+
+        return sendCards(Action.PUT, createJSONCard(card!!), null, null, "I have the right card")
+    }
+
+    private fun chooseBestCard(): Card {
+        return hand[0]
+    }
+
+    private fun searchSpecialCard(): Card? {
+        var specialCard: Card? = null
+
+        for(card: Card in hand) {
+            if(card.type != CardType.NUMBER && (card.cardColor1 == topCard.cardColor1 || card.cardColor1 == CardColor.MULTI)) {
+                specialCard = card
+            }
+        }
+
+        return specialCard
+    }
+
+    private fun reactOnColor(): JSONObject {
+        val listColor1 = ArrayList<Card>()
+        val listColor2 = ArrayList<Card>()
+
+        fillColorLists(listColor1, listColor2)
+
+        specialAtTheEnd(listColor1, listColor2)
+
+        if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && takeCard) {
+            takeCard = false
+            return sendCards(Action.NOPE, null, null, null, null)
+        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && !takeCard) {
+            takeCard = true
+            return sendCards(Action.TAKE, null, null, null, null)
+        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0)) {
+            takeCard = false
+            return buildAnswer(listColor1)
+        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+            takeCard = false
+            return buildAnswer(listColor2)
+        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+            takeCard = false
+            return buildAnswer(listColor1)
+        } else {
+            error("Something went wrong in List Choice")
+        }
+    }
+
     private fun fillColorLists(
         listColor1: ArrayList<Card>,
         listColor2: ArrayList<Card>
     ) {
         for (card: Card in hand) {
-            if (listColor1.size < (topCard.cardValue?.value
-                    ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
-            ) {
+            if (listColor1.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)) {
                 listColor1.add(card)
             }
-            if (listColor2.size < (topCard.cardValue?.value
-                    ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
-            ) {
+            if (listColor2.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)) {
                 listColor2.add(card)
             }
         }

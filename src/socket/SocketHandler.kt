@@ -196,6 +196,7 @@ object SocketHandler {
                 try {
                     AI.fillHand(jsonObject.getJSONArray("hand"))
                     AI.setTopCard(jsonObject.getJSONObject("topCard"))
+                    AI.setLastTopCard(jsonObject.getJSONObject("lastTopCard"))
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
