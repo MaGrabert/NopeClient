@@ -372,11 +372,18 @@ object AI {
         listColor2: ArrayList<Card>
     ) {
         val bestCardList1 = searchBestCard(listColor1)
-        listColor1.remove(bestCardList1)
-        listColor1.add(bestCardList1)
+
+        if(bestCardList1.type != CardType.NULL) {
+            listColor1.remove(bestCardList1)
+            listColor1.add(bestCardList1)
+        }
+        
 
         val bestCardList2 = searchBestCard(listColor2)
-        listColor2.remove(bestCardList2)
-        listColor2.add(bestCardList2)
+
+        if(bestCardList2.type != CardType.NULL) {
+            listColor2.remove(bestCardList2)
+            listColor2.add(bestCardList2)
+        }
     }
 }
