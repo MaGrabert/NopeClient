@@ -15,7 +15,7 @@ enum class CardType(val value: String?) {
     NULL(null);
 
     companion object {
-        fun getElement(value: String): CardType {
+        fun getElement(value: String?): CardType {
             for (element: CardType in CardType.values()) {
                 if (element.value == value) {
                     return element
@@ -71,7 +71,7 @@ enum class CardValue(val value: Int?) {
     NULL(null);
 
     companion object {
-        fun getElement(param: Int): CardValue {
+        fun getElement(param: Int?): CardValue {
             for (element: CardValue in CardValue.values()) {
                 if (element.value == param) {
                     return element

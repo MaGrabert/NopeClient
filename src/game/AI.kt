@@ -27,99 +27,94 @@ object AI {
     private var lastTopCard: Card? = null
     private var nextPlayerHandSize: Int = 0
 
-    fun setTopCard(topUpdate: JSONObject) {
-        try {
-            val colors: String = topUpdate.getString("color")
-            val color1: String?
-            val color2: String?
+    /*
+    *
+    * null wird als String übermittel als "null"
+    *
+    *
+    * */
 
-            val type: String = topUpdate.getString("type")
-            val value: Int = topUpdate.getString("value").toInt()
+    private fun createCard(jsonObject: JSONObject?, card: String): Card? {
+        if (jsonObject != null) {
+            var color1: String? = null
+            var color2: String? = null
+            var stringValue: String? = null
+            var intValue: Int? = null
+            var type: String = ""
 
-            if(colors.split("-").size == 2) {
-                color1 = colors.split("-")[0]
-                color2 = colors.split("-")[1]
-            } else {
-                color1 = colors
-                color2 = null
+            try {
+                val colors: String = jsonObject.getString("color")
+
+                if (colors.split("-").size == 2) {
+                    color1 = colors.split("-")[0]
+                    color2 = colors.split("-")[1]
+                } else {
+                    color1 = colors
+                }
+            } catch (e: JSONException) {
+                println("Don't get $card-Color!")
             }
 
-            if(type != "selection") {
-                this.topCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
+            try {
+                stringValue = jsonObject.getString("value")
+                if (stringValue != null && stringValue != "null") {
+                    intValue = stringValue.toInt()
+                }
+            } catch (e: JSONException) {
+                println("Don't get $card-Value")
             }
 
-        } catch(e: JSONException) {
-            e.printStackTrace()
+            try {
+                type = jsonObject.getString("type")
+            } catch (e: JSONException) {
+                println("Don't get $card-Type")
+            }
+
+            return Card(
+                CardType.getElement(type),
+                CardColor.getElement(color1),
+                CardColor.getElement(color2),
+                CardValue.getElement(intValue)
+            )
+        } else {
+            return null
         }
+    }
+
+    fun setTopCard(topUpdate: JSONObject) {
+        this.topCard = createCard(topUpdate, "Top-Card")!!
     }
 
     fun setNextPlayerHandSize(playerList: JSONArray, nextPlayerIndex: Int) {
         try {
             val nextPlayer: JSONObject = playerList.getJSONObject(nextPlayerIndex)
-            this.nextPlayerHandSize = nextPlayer.getString("handSize").toInt()
-        } catch(e: JSONException) {
-            e.printStackTrace()
+            val handSizeString = nextPlayer.getString("handSize")
+
+            if (handSizeString != null) {
+                this.nextPlayerHandSize = handSizeString.toInt()
+            }
+
+        } catch (e: JSONException) {
+            println("Don't get hand size of next player")
         }
     }
 
     fun setLastTopCard(lastTopUpdate: JSONObject?) {
-        if(lastTopUpdate != null) {
-            try {
-                val colors: String = lastTopUpdate.getString("color")
-                val color1: String?
-                val color2: String?
-
-                val type: String = lastTopUpdate.getString("type")
-                val value: Int = lastTopUpdate.getString("value").toInt()
-
-                if(colors.split("-").size == 2) {
-                    color1 = colors.split("-")[0]
-                    color2 = colors.split("-")[1]
-                } else {
-                    color1 = colors
-                    color2 = null
-                }
-
-                if(type != "selection") {
-                    this.lastTopCard = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
-                }
-
-            } catch(e: JSONException) {
-                e.printStackTrace()
-            }
-        }
+        this.lastTopCard = createCard(lastTopUpdate, "LastTop-Card")
     }
 
     fun fillHand(updateHand: JSONArray) {
         hand.clear()
-        for(index in 0 until updateHand.length()) {
-            val jsonCard: JSONObject = updateHand.getJSONObject(index)
+        for (index in 0 until updateHand.length()) {
             try {
-                val colors: String = jsonCard.getString("color")
-                var color1: String?
-                var color2: String?
-
-                val type: String = jsonCard.getString("type")
-                val value: Int = jsonCard.getString("value").toInt()
-
-                if(colors.split("-").size == 2) {
-                    color1 = colors.split("-")[0]
-                    color2 = colors.split("-")[1]
-                } else {
-                    color1 = colors
-                    color2 = null
-                }
-
-                if(type == "number") {
-                    val card = Card(CardType.getElement(type), CardColor.getElement(color1),CardColor.getElement(color2), CardValue.getElement(value))
-                    hand.add(card)
-                }
-
-            } catch(e: JSONException) {
-                e.printStackTrace()
+                val jsonCard: JSONObject = updateHand.getJSONObject(index)
+                hand.add(createCard(jsonCard, "Hand-Card")!!)
+            } catch (e: JSONException) {
+                println("Don't get a Card for the hand")
             }
         }
     }
+
 
     /**
      * Creates a card as JSONObject.
@@ -131,9 +126,9 @@ object AI {
 
         jsonObject.put("type", card.type.value)
 
-        if(card.cardColor1?.value != null && card.cardColor2?.value != null) {
+        if (card.cardColor1?.value != null && card.cardColor2?.value != null) {
             jsonObject.put("color", card.cardColor1.value + "-" + card.cardColor2.value)
-        } else if(card.cardColor1?.value != null && card.cardColor2?.value == null){
+        } else if (card.cardColor1?.value != null && card.cardColor2?.value == null) {
             jsonObject.put("color", card.cardColor1.value)
         } else {
             jsonObject.put("color", JSONObject.NULL)
@@ -161,19 +156,19 @@ object AI {
 
         jsonObject.put("type", action.toString().lowercase())
 
-        if(card1 != null) {
+        if (card1 != null) {
             jsonObject.put("card1", card1)
         } else {
             jsonObject.put("card1", JSONObject.NULL)
         }
 
-        if(card2 != null) {
+        if (card2 != null) {
             jsonObject.put("card2", card2)
         } else {
             jsonObject.put("card2", JSONObject.NULL)
         }
 
-        if(card3 != null) {
+        if (card3 != null) {
             jsonObject.put("card3", card3)
         } else {
             jsonObject.put("card3", JSONObject.NULL)
@@ -184,104 +179,108 @@ object AI {
         return jsonObject
     }
 
-    fun buildAnswer(tmpHand: ArrayList<Card>) : JSONObject{
+    private fun buildAnswer(tmpHand: ArrayList<Card>): JSONObject {
         var answer: JSONObject = JSONObject()
-        if(tmpHand.size == 1) {
-            answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),null,null, "I have the right card")
-        } else if(tmpHand.size == 2) {
-            answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),null, "I have the right cards")
-        } else if(tmpHand.size == 3) {
-            answer = sendCards(Action.PUT,createJSONCard(tmpHand[0]),createJSONCard(tmpHand[1]),createJSONCard(tmpHand[2]), "I have the right cards")
+        if (tmpHand.size == 1) {
+            answer = sendCards(Action.PUT, createJSONCard(tmpHand[0]), null, null, "I have the right card")
+        } else if (tmpHand.size == 2) {
+            answer = sendCards(
+                Action.PUT,
+                createJSONCard(tmpHand[0]),
+                createJSONCard(tmpHand[1]),
+                null,
+                "I have the right cards"
+            )
+        } else if (tmpHand.size == 3) {
+            answer = sendCards(
+                Action.PUT,
+                createJSONCard(tmpHand[0]),
+                createJSONCard(tmpHand[1]),
+                createJSONCard(tmpHand[2]),
+                "I have the right cards"
+            )
         }
         return answer
     }
 
-    fun makeMove() :JSONObject {
+    fun makeMove(): JSONObject {
         var answer: JSONObject = JSONObject()
-        if(this.topCard.type == CardType.NUMBER) {
+        if (this.topCard.type == CardType.NUMBER) {
             answer = reactOnColor()
 
-        } else if(this.topCard.type == CardType.JOKER) {
+        } else if (this.topCard.type == CardType.JOKER) {
             takeCard = false
-            answer = searchBestCard()
+            answer = createJSONCard(searchBestCard(hand))
 
-        } else if(this.topCard.type == CardType.REBOOT) {
+        } else if (this.topCard.type == CardType.REBOOT) {
             takeCard = false
-            answer = searchBestCard()
+            answer = createJSONCard(searchBestCard(hand))
 
-        } else if(this.topCard.type == CardType.SEE_THROUGH) {
+        } else if (this.topCard.type == CardType.SEE_THROUGH) {
             takeCard = false
-            if(this.lastTopCard != null) {
+            if (this.lastTopCard != null) {
                 this.topCard = this.lastTopCard!!
                 answer = makeMove()
             } else {
-                answer = searchBestCard()
+                answer = JSONObject() // Soll auf Farbe der jetzt aktuellen see-through reagieren
             }
-        } else if(this.topCard.type == CardType.SELECTION) {
+        } else if (this.topCard.type == CardType.SELECTION) {
             takeCard = false
             answer = JSONObject()
         }
         return answer
     }
 
-    private fun searchBestCard(): JSONObject {
-        var card: Card? = searchSpecialCard()
+    private fun searchBestCard(cardList: ArrayList<Card>): Card {
+        var specialCard: Card? = null
+        var bigCard: Card? = null
+        var midCard: Card? = null
+        var smallCard: Card? = null
+        var bestCard = Card(CardType.NULL, null, null, null)
 
-        if (card != null) {
-            card = chooseBestCard()
-        }
-
-        return sendCards(Action.PUT, createJSONCard(card!!), null, null, "I have the right card")
-    }
-
-    private fun chooseBestCard(): Card {
-        lateinit var smallCard: Card
-        lateinit var midCard: Card
-        lateinit var bigCard: Card
-
-        for(card: Card in hand) {
-            if(card.cardColor1 == topCard.cardColor1 || card.cardColor1 == topCard.cardColor2 || card.cardColor2 == topCard.cardColor1 || (card.cardColor2 == topCard.cardColor2 && card.cardColor1 != null)) {
-                if(card.cardValue?.value == 1) {
-                    smallCard = card
+        for(card: Card in cardList) {
+            if(card.type != CardType.NUMBER) {
+                specialCard = card
+            } else {
+                if(card.cardValue?.value == 3) {
+                    bigCard = card
                 } else if(card.cardValue?.value == 2) {
                     midCard = card
-                } else if(card.cardValue?.value == 3) {
-                    bigCard = card
+                } else if(card.cardValue?.value == 1) {
+                    smallCard = card
                 }
             }
         }
 
-        if(this.nextPlayerHandSize == 1) {
-            return smallCard
-        } else if(this.nextPlayerHandSize <= 5) {
+        if(specialCard != null) {
+            bestCard = specialCard
+        } else if(nextPlayerHandSize > 5) {
+            if(bigCard != null) {
+                bestCard = bigCard
+            } else if(midCard != null) {
+                bestCard = midCard
+            } else if(smallCard != null){
+                bestCard = smallCard
+            }
+        } else if(nextPlayerHandSize > 1) {
             if(midCard != null) {
-                return midCard
-            } else if(midCard == null && smallCard != null){
-                return smallCard
-            } else {
-                return bigCard
+                bestCard = midCard
+            } else if(smallCard != null){
+                bestCard = smallCard
+            } else if(bigCard != null) {
+                bestCard = bigCard
             }
         } else {
-            if(bigCard != null) {
-                return bigCard
-            } else if(bigCard == null && midCard != null){
-                return midCard
-            } else {
-                return smallCard
-            }
-        }
-    }
-
-    private fun searchSpecialCard(): Card? {
-        var specialCard: Card? = null
-
-        for(card: Card in hand) {
-            if(card.type != CardType.NUMBER && (card.cardColor1 == topCard.cardColor1 || card.cardColor1 == CardColor.MULTI)) {
-                specialCard = card
+            if(smallCard != null) {
+                bestCard = smallCard
+            } else if(midCard != null) {
+                bestCard = midCard
+            } else if(bigCard != null) {
+                bestCard = bigCard
             }
         }
 
-        return specialCard
+        return bestCard
     }
 
     private fun reactOnColor(): JSONObject {
@@ -289,22 +288,31 @@ object AI {
         val listColor2 = ArrayList<Card>()
 
         fillColorLists(listColor1, listColor2)
+        sortColorList(listColor1, listColor2)
 
-        specialAtTheEnd(listColor1, listColor2)
-
-        if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && takeCard) {
+        if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
+                ?: 0) && takeCard
+        ) {
             takeCard = false
             return sendCards(Action.NOPE, null, null, null, null)
-        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0) && !takeCard) {
+        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
+                ?: 0) && !takeCard
+        ) {
             takeCard = true
             return sendCards(Action.TAKE, null, null, null, null)
-        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value ?: 0)) {
+        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
+                ?: 0)
+        ) {
             takeCard = false
             return buildAnswer(listColor1)
-        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+        } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value
+                ?: 0)
+        ) {
             takeCard = false
             return buildAnswer(listColor2)
-        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value ?: 0)) {
+        } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size == (topCard.cardValue?.value
+                ?: 0)
+        ) {
             takeCard = false
             return buildAnswer(listColor1)
         } else {
@@ -317,35 +325,29 @@ object AI {
         listColor2: ArrayList<Card>
     ) {
         for (card: Card in hand) {
-            if (listColor1.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)) {
+            if (listColor1.size < (topCard.cardValue?.value
+                    ?: 0) && topCard.cardColor1?.value != null && (topCard.cardColor1 == card.cardColor1 || topCard.cardColor1 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
+            ) {
                 listColor1.add(card)
             }
-            if (listColor2.size < (topCard.cardValue?.value ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)) {
+            if (listColor2.size < (topCard.cardValue?.value
+                    ?: 0) && topCard.cardColor2?.value != null && (topCard.cardColor2 == card.cardColor1 || topCard.cardColor2 == card.cardColor2 || card.cardColor1 == CardColor.MULTI)
+            ) {
                 listColor2.add(card)
             }
         }
     }
 
-    private fun specialAtTheEnd(
+    private fun sortColorList(
         listColor1: ArrayList<Card>,
         listColor2: ArrayList<Card>
     ) {
-        var specialCard: Card
+        val bestCardList1 = searchBestCard(listColor1)
+        listColor1.remove(bestCardList1)
+        listColor1.add(bestCardList1)
 
-        for (card: Card in listColor1) {
-            if (card.cardColor1 == CardColor.MULTI) {
-                specialCard = card
-                listColor1.remove(card)
-                listColor1.add(specialCard)
-            }
-        }
-
-        for (card: Card in listColor2) {
-            if (card.cardColor2 == CardColor.MULTI) {
-                specialCard = card
-                listColor2.remove(card)
-                listColor2.add(specialCard)
-            }
-        }
+        val bestCardList2 = searchBestCard(listColor2)
+        listColor2.remove(bestCardList2)
+        listColor2.add(bestCardList2)
     }
 }
