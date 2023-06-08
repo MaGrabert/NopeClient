@@ -24,6 +24,7 @@ object AI {
     private var hand = ArrayList<Card>()
     private lateinit var topCard: Card
     private var takeCard: Boolean = false
+    private var topIsSeeTrough = false
     private var lastTopCard: Card? = null
     private var nextPlayerHandSize: Int = 0
 
@@ -206,29 +207,52 @@ object AI {
     fun makeMove(): JSONObject {
         var answer: JSONObject = JSONObject()
         if (this.topCard.type == CardType.NUMBER) {
+            topIsSeeTrough = false
             answer = reactOnColor()
 
         } else if (this.topCard.type == CardType.JOKER) {
+            topIsSeeTrough = false
             takeCard = false
-            answer = createJSONCard(searchBestCard(hand))
+            val bestCard = searchBestCard(hand)
+            println("Send card $bestCard, because topcard is a joker")
+            answer = createJSONCard(bestCard)
 
         } else if (this.topCard.type == CardType.REBOOT) {
+            topIsSeeTrough = false
             takeCard = false
-            answer = createJSONCard(searchBestCard(hand))
+            val bestCard = searchBestCard(hand)
+            println("Send card $bestCard, because topcard is a reboot")
+            answer = createJSONCard(bestCard)
 
         } else if (this.topCard.type == CardType.SEE_THROUGH) {
             takeCard = false
-            if (this.lastTopCard != null) {
+            if (this.lastTopCard != null && !topIsSeeTrough) {
+                topIsSeeTrough = true
                 this.topCard = this.lastTopCard!!
                 answer = makeMove()
             } else {
-                answer = JSONObject() // Soll auf Farbe der jetzt aktuellen see-through reagieren
+                answer = reactOnSeeThrough()
             }
         } else if (this.topCard.type == CardType.SELECTION) {
+            topIsSeeTrough = false
             takeCard = false
             answer = JSONObject()
         }
         return answer
+    }
+
+    private fun reactOnSeeThrough(): JSONObject {
+        val colorList =  ArrayList<Card>()
+
+        for(card: Card in hand) {
+            if(card.cardColor1 == topCard.cardColor1 || card.cardColor2 == topCard.cardColor2) {
+                colorList.add(card)
+            }
+        }
+
+        val bestCard = searchBestCard(colorList)
+
+        return createJSONCard(bestCard)
     }
 
     private fun searchBestCard(cardList: ArrayList<Card>): Card {
@@ -288,7 +312,12 @@ object AI {
         val listColor2 = ArrayList<Card>()
 
         fillColorLists(listColor1, listColor2)
+
+        println("List1 before sort: $listColor1, List2 before sort: $listColor2")
+
         sortColorList(listColor1, listColor2)
+
+        println("List1 after sort: $listColor1, List2 after sort: $listColor2")
 
         if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
                 ?: 0) && takeCard
