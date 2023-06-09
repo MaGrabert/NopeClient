@@ -23,6 +23,10 @@ import java.util.Collections.singletonMap
 object SocketHandler {
     private lateinit var socket: Socket
     var tableData = mutableListOf<Tournament>().asObservable()
+    var listData = listOf("Message:", TournamentInfo.message,"Tournament-ID:", TournamentInfo.id,
+                          "Tournament-Size:", TournamentInfo.size, "Status:", TournamentInfo.status,
+                          "Player:", TournamentInfo.players, "Host:", TournamentInfo.host.name,
+                          "Winner", TournamentInfo.winner.name).asObservable()
 
     /**
      * Creates and connects the client socket with the server socket.
@@ -176,6 +180,7 @@ object SocketHandler {
             println("Server response on event game:makeMove: $response")
             val ack = args[1] as Ack
             val move = AI.makeMove()
+            println("Client answer on event game:makeMove: $move")
             try {
                 ack.call(move)
             } catch (e: Exception) {

@@ -3,6 +3,8 @@ package view
 import app.Profile
 import javafx.geometry.Pos
 import javafx.scene.control.Label
+import javafx.scene.control.SelectionMode
+import javafx.scene.paint.Color
 import socket.SocketHandler
 import tornadofx.*
 
@@ -16,14 +18,6 @@ class TournamentView : View("Nope-Client-KI") {
     override val root = borderpane() {
         prefWidth = 1024.0
         prefHeight = 800.0
-        var labelMessage: Label
-        var labelID: Label
-        var labelSize: Label
-        var labelStatus: Label
-        var labelMatches: Label
-        var labelPlayers: Label
-        var labelHost: Label
-        var labelWinner: Label
 
         top {
             menubar {
@@ -49,26 +43,17 @@ class TournamentView : View("Nope-Client-KI") {
         left {
             prefHeight = 800.0
             prefWidth = 100.0
-            label("Message:")
-            label("...")
-            label("ID:")
-            label("...")
-            label("Tournament-Size:")
-            label("...")
-            label("Status:")
-            label("...")
-            label("Matches:")
-            label("...")
-            label("Players:")
-            label("...")
-            label("Host:")
-            label("...")
-            label("Winner:")
-            label("...")
+            listview(SocketHandler.listData)
         }
 
         center {
-
+            //rectangle {
+            //    fill = Color.BLUE
+            //    width = 150.0
+            //    height = 300.0
+            //    arcWidth = 20.0
+            //    arcHeight = 20.0
+            //}
         }
 
         bottom {

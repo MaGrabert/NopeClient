@@ -136,9 +136,9 @@ object AI {
         }
 
         jsonObject.put("value", card.cardValue?.value ?: JSONObject.NULL)
-        //jsonObject.put("select", card.select?.value ?: JSONObject.NULL)
-        //jsonObject.put("selectValue", card.selectValue?.value ?: JSONObject.NULL)
-        //jsonObject.put("selectedColor", card.selectedColor?.value ?: JSONObject.NULL)
+        jsonObject.put("select", JSONObject.NULL)
+        jsonObject.put("selectValue", JSONObject.NULL)
+        jsonObject.put("selectedColor", JSONObject.NULL)
 
         return jsonObject
     }
@@ -215,14 +215,14 @@ object AI {
             takeCard = false
             val bestCard = searchBestCard(hand)
             println("Send card $bestCard, because topcard is a joker")
-            answer = createJSONCard(bestCard)
+            answer =  sendCards(Action.PUT,createJSONCard(bestCard),null,null,"I have the right Card")
 
         } else if (this.topCard.type == CardType.REBOOT) {
             topIsSeeTrough = false
             takeCard = false
             val bestCard = searchBestCard(hand)
             println("Send card $bestCard, because topcard is a reboot")
-            answer = createJSONCard(bestCard)
+            answer =  sendCards(Action.PUT,createJSONCard(bestCard),null,null,"I have the right Card")
 
         } else if (this.topCard.type == CardType.SEE_THROUGH) {
             takeCard = false
@@ -252,7 +252,7 @@ object AI {
 
         val bestCard = searchBestCard(colorList)
 
-        return createJSONCard(bestCard)
+        return sendCards(Action.PUT,createJSONCard(bestCard),null,null,"I have the right Card")
     }
 
     private fun searchBestCard(cardList: ArrayList<Card>): Card {
