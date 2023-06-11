@@ -323,12 +323,42 @@ object AI {
                 ?: 0) && takeCard
         ) {
             takeCard = false
-            return sendCards(Action.NOPE, null, null, null, null)
+            if(listColor1.size == 1) {
+                if(listColor1[0].type != CardType.NUMBER) {
+                    return sendCards(Action.PUT, createJSONCard(listColor1[0]), null, null, "I have the right card")
+                } else {
+                    return sendCards(Action.NOPE, null, null, null, null)
+                }
+            } else if(listColor2.size == 1){
+                if(listColor2[0].type != CardType.NUMBER) {
+                    return sendCards(Action.PUT, createJSONCard(listColor2[0]), null, null, "I have the right card")
+                } else {
+                    return sendCards(Action.NOPE, null, null, null, null)
+                }
+            } else {
+                return sendCards(Action.NOPE, null, null, null, null)
+            }
         } else if (listColor1.size < (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
                 ?: 0) && !takeCard
         ) {
-            takeCard = true
-            return sendCards(Action.TAKE, null, null, null, null)
+            if(listColor1.size == 1) {
+                if(listColor1[0].type != CardType.NUMBER) {
+                    return sendCards(Action.PUT, createJSONCard(listColor1[0]), null, null, "I have the right card")
+                } else {
+                    takeCard = true
+                    return sendCards(Action.TAKE, null, null, null, null)
+                }
+            } else if(listColor2.size == 1){
+                if(listColor2[0].type != CardType.NUMBER) {
+                    return sendCards(Action.PUT, createJSONCard(listColor2[0]), null, null, "I have the right card")
+                } else {
+                    takeCard = true
+                    return sendCards(Action.TAKE, null, null, null, null)
+                }
+            } else {
+                takeCard = true
+                return sendCards(Action.TAKE, null, null, null, null)
+            }
         } else if (listColor1.size == (topCard.cardValue?.value ?: 0) && listColor2.size < (topCard.cardValue?.value
                 ?: 0)
         ) {

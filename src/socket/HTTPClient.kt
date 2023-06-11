@@ -35,7 +35,7 @@ object HTTPClient {
             if (response.statusCode() in 200..299)
                 println("Register successful!")
             else
-                println("Error during registration!")
+                println(response)
 
         } catch (e: Exception) {
             e.printStackTrace()

@@ -178,6 +178,7 @@ object SocketHandler {
         socket.on("game:makeMove") { args ->
             val response = args[0] as JSONObject
             println("Server response on event game:makeMove: $response")
+            Thread.sleep(2500)
             val ack = args[1] as Ack
             val move = AI.makeMove()
             println("Client answer on event game:makeMove: $move")
@@ -210,7 +211,7 @@ object SocketHandler {
                 try {
                     val playerList: JSONArray = jsonObject.getJSONArray("players")
                     val currentPlayerIndex: Int = jsonObject.getString("currentPlayerIdx").toInt()
-                    AI.setNextPlayerHandSize(playerList, (0 + 1))
+                    AI.setNextPlayerHandSize(playerList, (currentPlayerIndex))
                 } catch (e: JSONException) {
                     println("Problem to get next player index")
                 }
