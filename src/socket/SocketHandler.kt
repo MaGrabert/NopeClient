@@ -236,6 +236,9 @@ object SocketHandler {
         }
     }
 
+    /**
+     * Receives all match invitations
+     */
     fun refreshMatchInvite() {
         this.socket.on("match:invite") { args ->
             if (args[0] != null) {

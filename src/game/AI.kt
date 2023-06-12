@@ -29,12 +29,8 @@ object AI {
     private var nextPlayerHandSize: Int = 0
 
     /*
-    *
-    * null wird als String übermittel als "null"
-    *
-    *
-    * */
-
+     * Gets a card as jsonObject and creates a card
+     */
     private fun createCard(jsonObject: JSONObject?, card: String): Card? {
         if (jsonObject != null) {
             var color1: String? = null
@@ -82,10 +78,16 @@ object AI {
         }
     }
 
+    /**
+     * Sets the top card with content from a jsonObject
+     */
     fun setTopCard(topUpdate: JSONObject) {
         this.topCard = createCard(topUpdate, "Top-Card")!!
     }
 
+    /**
+     * Sets the next player hand size with content from a jsonObject
+     */
     fun setNextPlayerHandSize(playerList: JSONArray, nextPlayerIndex: Int) {
         try {
             val nextPlayer: JSONObject = playerList.getJSONObject(nextPlayerIndex)
@@ -100,10 +102,16 @@ object AI {
         }
     }
 
+    /**
+     * Sets the last top card with content from a jsonObject
+     */
     fun setLastTopCard(lastTopUpdate: JSONObject?) {
         this.lastTopCard = createCard(lastTopUpdate, "LastTop-Card")
     }
 
+    /**
+     * Sets the hand with content from a jsonObject
+     */
     fun fillHand(updateHand: JSONArray) {
         hand.clear()
         for (index in 0 until updateHand.length()) {
@@ -117,7 +125,7 @@ object AI {
     }
 
 
-    /**
+    /*
      * Creates a card as JSONObject.
      *
      * @return jsonObject The card as JSONObject
@@ -143,7 +151,7 @@ object AI {
         return jsonObject
     }
 
-    /**
+    /*
      * Sends cards to the server.
      */
     private fun sendCards(
@@ -180,6 +188,9 @@ object AI {
         return jsonObject
     }
 
+    /*
+     * Build an answer as jsonObject with action, card 1-3 and reason
+     */
     private fun buildAnswer(tmpHand: ArrayList<Card>): JSONObject {
         var answer: JSONObject = JSONObject()
         if (tmpHand.size == 1) {
@@ -204,6 +215,11 @@ object AI {
         return answer
     }
 
+    /**
+     * Reacts on the top Card and builds the correct answer as jsonObject
+     *
+     * @return answer The answer with action, card 1-3 and reason
+     */
     fun makeMove(): JSONObject {
         var answer: JSONObject = JSONObject()
         if (this.topCard.type == CardType.NUMBER) {
@@ -241,6 +257,9 @@ object AI {
         return answer
     }
 
+    /*
+     * Reaction on a see-through card
+     */
     private fun reactOnSeeThrough(): JSONObject {
         val colorList =  ArrayList<Card>()
 
@@ -255,6 +274,9 @@ object AI {
         return sendCards(Action.PUT,createJSONCard(bestCard),null,null,"I have the right Card")
     }
 
+    /*
+     * Searches a special card or the best number card in the given list
+     */
     private fun searchBestCard(cardList: ArrayList<Card>): Card {
         var specialCard: Card? = null
         var bigCard: Card? = null
@@ -307,6 +329,9 @@ object AI {
         return bestCard
     }
 
+    /*
+     * Reacts on number cards
+     */
     private fun reactOnColor(): JSONObject {
         val listColor1 = ArrayList<Card>()
         val listColor2 = ArrayList<Card>()
@@ -379,6 +404,9 @@ object AI {
         }
     }
 
+    /*
+     * Fill two list. List 1 is for color 1 and list 2 for color 2
+     */
     private fun fillColorLists(
         listColor1: ArrayList<Card>,
         listColor2: ArrayList<Card>
@@ -397,6 +425,9 @@ object AI {
         }
     }
 
+    /*
+     * Sets the best card as last card
+     */
     private fun sortColorList(
         listColor1: ArrayList<Card>,
         listColor2: ArrayList<Card>
